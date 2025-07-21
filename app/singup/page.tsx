@@ -23,6 +23,10 @@ interface FormData {
   sponsorId: string[];
   pin: string;
 }
+interface PinType {
+  Pin: string;
+  used: boolean;
+}
 
 export default function MitraRegisterPage() {
   const db = getFirestore();
@@ -57,9 +61,10 @@ export default function MitraRegisterPage() {
     const sponsorData = sponsorSnap.data();
     const pins = sponsorData.pins || [];
 
-    const pinIndex = pins.findIndex(
-      (pin: any) => pin.Pin === inputPin && !pin.used
-    );
+const pinIndex = pins.findIndex(
+  (pin: PinType) => pin.Pin === inputPin && !pin.used
+);
+
 
     if (pinIndex === -1) {
       throw new Error('PIN tidak valid atau sudah digunakan');
@@ -115,9 +120,9 @@ const handleRegister = async () => {
 
     alert('✅ Pendaftaran berhasil!');
     router.refresh();
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ ERROR:', error);
-    alert('❌ Gagal daftar: ' + error.message);
+    alert('❌ Gagal daftar: ')
   }
 };
 

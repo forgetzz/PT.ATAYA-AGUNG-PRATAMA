@@ -21,8 +21,8 @@ export default function LoginPage() {
       alert("Berhasil login!");
       router.push("/dashboard"); // ✅ GUNAKAN URL PATH
       // bisa redirect di sini pakai router.push('/dashboard') jika mau
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      console.log("erorr");
     }
     setLoading(false);
   };
