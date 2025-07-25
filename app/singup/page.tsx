@@ -38,7 +38,6 @@ export default function MitraRegisterPage() {
   const [loading, setLoading] = useState(false); // State untuk loading
   const [error, setError] = useState<string | null>(null); // State untuk pesan error
   const [success, setSuccess] = useState<string | null>(null); // State untuk pesan sukses
-
   const [form, setForm] = useState<FormData>({
     name: '',
     email: '',
@@ -136,16 +135,10 @@ export default function MitraRegisterPage() {
       setTimeout(() => {
         router.push('/login'); // Redirect ke halaman login setelah sukses
       }, 2000); // Tunggu 2 detik sebelum redirect
-    } catch (error: any) {
-      console.error('Registration error:', error.message);
+    } catch (error: unknown) {
+      console.error('Registration error:');
       let errorMessage = 'Terjadi kesalahan saat mendaftar. Silakan coba lagi.';
-      if (error.code === 'auth/email-already-in-use') {
-        errorMessage = 'Email sudah terdaftar. Silakan gunakan email lain atau login.';
-      } else if (error.code === 'auth/weak-password') {
-        errorMessage = 'Password terlalu lemah. Minimal 6 karakter.';
-      } else if (error.code === 'auth/invalid-email') {
-        errorMessage = 'Format email tidak valid.';
-      }
+     
       setError('Registrasi error: ' + errorMessage);
     } finally {
       setLoading(false);
