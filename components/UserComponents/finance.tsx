@@ -124,7 +124,7 @@ export default function FinanceDashboard() {
 
       const token = await user.getIdToken();
 
-      const res = await fetch("http://localhost:5000/withdraw", {
+      const res = await fetch("https://backend-asb-production.up.railway.app/withdraw", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

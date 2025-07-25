@@ -36,7 +36,7 @@ export default function AdminPage() {
   }, []);
 
   const fetchProfile = async () => {
-    const res = await fetch("http://localhost:5000/WithdrawAdmin");
+    const res = await fetch("https://backend-asb-production.up.railway.app//WithdrawAdmin");
     const data = await res.json();
     console.log(data);
     setWithdrawsData(data);
@@ -56,7 +56,7 @@ export default function AdminPage() {
 
     const token = await user.getIdToken();
     try {
-      const res = await fetch("http://localhost:5000/WithdrawAdminUpdate", {
+      const res = await fetch("https://backend-asb-production.up.railway.app/WithdrawAdminUpdate", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

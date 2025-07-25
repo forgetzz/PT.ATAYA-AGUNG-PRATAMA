@@ -96,7 +96,7 @@ export default function MitraRegisterPage() {
       const token = await user.getIdToken();
 
       // 3. Kirim data user ke backend Express via POST
-      const response = await fetch('http://localhost:5000/register', {
+      const response = await fetch('https://backend-asb-production.up.railway.app//register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
