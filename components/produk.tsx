@@ -7,7 +7,7 @@ export default function ProductCards() {
   return (
     <div id="produk" className="max-w-7xl mx-auto px-6 py-12">
       {/* Judul Section */}
-      <h1 className="text-4xl font-bold text-white-700 mb-8 text-center">
+      <h1 className="text-4xl font-bold text-gray-800 mb-8 text-center">
         Produk kami
       </h1>
 
@@ -15,16 +15,16 @@ export default function ProductCards() {
       <div className="grid md:grid-cols-2 gap-10">
         {/* Produk A */}
         <div className="bg-red-50 border border-red-200 rounded-xl shadow hover:shadow-lg transition-all duration-300 overflow-hidden">
-           <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px]">
+          <div className="relative w-full h-60"> {/* ubah tinggi ke h-60 */}
             <Image
               src="/images/produk1.jpeg"
-              alt="Produk B"
+              alt="Produk A"
               fill
               className="object-cover transition-transform duration-300 hover:scale-105"
             />
           </div>
           <div className="p-6">
-            <h2 className="text-2xl font-bold text-red-700 mb-2">Produk A</h2>
+            <h2 className="text-xl font-bold text-red-700 mb-2">Produk A</h2>
             <p className="text-gray-700 mb-4">
               Ini adalah deskripsi singkat untuk Produk A.
             </p>
@@ -39,7 +39,7 @@ export default function ProductCards() {
 
         {/* Produk B */}
         <div className="bg-red-50 border border-red-200 rounded-xl shadow hover:shadow-lg transition-all duration-300 overflow-hidden">
-          <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px]">
+          <div className="relative w-full h-60"> {/* ubah tinggi ke h-60 */}
             <Image
               src="/images/produk2.jpeg"
               alt="Produk B"
@@ -47,9 +47,8 @@ export default function ProductCards() {
               className="object-cover transition-transform duration-300 hover:scale-105"
             />
           </div>
-
           <div className="p-6">
-            <h2 className="text-2xl font-bold text-red-700 mb-2">Produk B</h2>
+            <h2 className="text-xl font-bold text-red-700 mb-2">Produk B</h2>
             <p className="text-gray-700 mb-4">
               Deskripsi singkat mengenai Produk B yang sangat keren.
             </p>

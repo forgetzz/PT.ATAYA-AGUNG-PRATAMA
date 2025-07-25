@@ -1,156 +1,100 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Menu } from "lucide-react";
 import clsx from "clsx";
 
 export default function Navbar() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
+  const [open, setOpen] = React.useState(false);
 
-  useEffect(() => {
-    setMenuOpen(false); // auto close saat ganti halaman
+  React.useEffect(() => {
+    setOpen(false);
   }, [pathname]);
 
+  const menuLinks = [
+    { label: "Beranda", href: "#features" },
+    { label: "Tentang Kami", href: "#features" },
+    { label: "Produk", href: "#produk" },
+    { label: "Kemitraan", href: "#halo" },
+    { label: "Kontak", href: "#contact" },
+  ];
+
   return (
-    <header className="sticky top-0 z-50 w-full bg-white border-b border-red-300 shadow-sm">
-      <nav className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+    <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm dark:bg-black/90 dark:border-red-400">
+      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
-          <div className="relative w-32 h-10">
-            <Image
-              src="/images/logo123.png"
-              alt="Logo"
-              fill
-              className="object-contain rounded-full"
-              priority
-            />
-          </div>
+        <Link href="/" className="text-xl font-bold text-red-600">
+          ASBFamily
         </Link>
 
         {/* Desktop Menu */}
-        <ul className="hidden lg:flex items-center gap-6">
-          <li>
-            <Link href="#features" className="text-gray-700 hover:text-red-600 font-medium transition">
-              Beranda
+        <nav className="hidden lg:flex items-center gap-6">
+          {menuLinks.map((link) => (
+            <Link
+              key={link.label}
+              href={link.href}
+              className={clsx(
+                "text-gray-700 hover:text-red-600 font-medium transition",
+                pathname === link.href && "text-red-700"
+              )}
+            >
+              {link.label}
             </Link>
-          </li>
-          <li>
-            <Link href="#features" className="text-gray-700 hover:text-red-600 font-medium transition">
-            Tentang Kami  
-            </Link>
-          </li>
-          <li>
-            <Link href="#produk" className="text-gray-700 hover:text-red-600 font-medium transition">
-              Produk
-            </Link>
-          </li>
-          <li>
-            <Link href="#halo" className="text-gray-700 hover:text-red-600 font-medium transition">
-              Kemitraan
-            </Link>
-          </li>
-          <li>
-            <Link href="#contact" className="text-gray-700 hover:text-red-600 font-medium transition">
-              Kontak
-            </Link>
-          </li>
-        </ul>
+          ))}
+        </nav>
 
-        {/* Desktop Login Button */}
-        <div className="hidden lg:flex items-center gap-4">
-          <Link
-            href="/login"
-            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition"
-          >
-            Login
-          </Link>
+        {/* Desktop Buttons */}
+        <div className="hidden lg:flex gap-2">
+          <Button asChild variant="outline">
+            <Link href="/login">Login</Link>
+          </Button>
+          <Button asChild className="bg-red-600 hover:bg-red-700 text-white">
+            <Link href="/signup">Daftar Mitra</Link>
+          </Button>
         </div>
-    
 
-        {/* Hamburger Toggle */}
-        <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="lg:hidden focus:outline-none transition duration-300"
-        >
-          <div className="w-6 h-6 relative">
-            <span
-              className={clsx(
-                "block absolute h-[2px] w-full bg-red-600 transform transition duration-300 ease-in-out",
-                menuOpen ? "rotate-45 top-2.5" : "top-1"
-              )}
-            />
-            <span
-              className={clsx(
-                "block absolute h-[2px] w-full bg-red-600 transform transition duration-300 ease-in-out",
-                menuOpen ? "opacity-0" : "top-3"
-              )}
-            />
-            <span
-              className={clsx(
-                "block absolute h-[2px] w-full bg-red-600 transform transition duration-300 ease-in-out",
-                menuOpen ? "-rotate-45 bottom-2.5" : "bottom-1"
-              )}
-            />
-          </div>
-        </button>
-      </nav>
+        {/* Mobile Menu Button */}
+        <div className="lg:hidden">
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Menu className="w-6 h-6 text-red-600" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[280px] sm:w-[300px]">
+              {/* --- BAGIAN YANG DIPERBAIKI --- */}
+              {/* Tambahkan SheetTitle dan SheetDescription di sini */}
+              <SheetTitle className="sr-only">Menu Navigasi</SheetTitle>
+              <SheetDescription className="sr-only">Menu untuk navigasi situs.</SheetDescription>
+              {/* --- AKHIR BAGIAN YANG DIPERBAIKI --- */}
 
-      {/* Mobile Menu */}
-      <div
-        className={clsx(
-          "lg:hidden overflow-hidden transition-all duration-300 ease-in-out",
-          menuOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
-        )}
-      >
-        <div className="bg-white px-6 py-4 border-t border-red-200 shadow-md">
-          <ul className="flex flex-col gap-4">
-            <li>
-            <Link href="#features" className="text-gray-700 hover:text-red-600 font-medium transition">
-              Beranda
-            </Link>
-          </li>
-          <li>
-            <Link href="#features" className="text-gray-700 hover:text-red-600 font-medium transition">
-            Tentang Kami  
-            </Link>
-          </li>
-          <li>
-            <Link href="#produk" className="text-gray-700 hover:text-red-600 font-medium transition">
-              Produk
-            </Link>
-          </li>
-          <li>
-            <Link href="#halo" className="text-gray-700 hover:text-red-600 font-medium transition">
-              Kemitraan
-            </Link>
-          </li>
-          <li>
-            <Link href="#contact" className="text-gray-700 hover:text-red-600 font-medium transition">
-              Kontak
-            </Link>
-          </li>
-            <li>
-              <Link
-                href="/login"
-                className="block text-white bg-red-600 px-4 py-2 rounded-md text-center hover:bg-red-700"
-                onClick={() => setMenuOpen(false)}
-              >
-                Login
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/singup"
-                className="block text-white bg-red-600 px-4 py-2 rounded-md text-center hover:bg-red-700"
-                onClick={() => setMenuOpen(false)}
-              >
-                Daftar mitra
-              </Link>
-            </li>
-          </ul>
+              <div className="flex flex-col gap-4 mt-6">
+                {menuLinks.map((link) => (
+                  <Link
+                    key={link.label}
+                    href={link.href}
+                    className="text-gray-700 hover:text-red-600 font-medium"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+                <Button asChild variant="outline" className="w-full">
+                  <Link href="/login">Login</Link>
+                </Button>
+                <Button
+                  asChild
+                  className="bg-red-600 hover:bg-red-700 text-white w-full"
+                >
+                  <Link href="/signup">Daftar Mitra</Link>
+                </Button>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>

@@ -1,81 +1,79 @@
 "use client"
+
+import {
+  Home,
+  Network,
+  Wallet,
+  Package,
+  Settings,
+} from "lucide-react"
+import { getAuth, onAuthStateChanged } from "firebase/auth"
 import Home2 from "@/components/UserComponents/home"
-import { useState } from "react"
-import { Home, Settings, BanknoteArrowDown, Network, BottleWine } from "lucide-react"
 import Jaringan from "@/components/UserComponents/jaringan"
+import FinanceDashboard from "@/components/UserComponents/finance"
+import ProductList from "@/components/UserComponents/produk"
+import AccountSettings from "@/components/UserComponents/setting"
+import { useTabStore } from "@/store/tabStore"
+import { useRouter } from "next/navigation"
+import { useEffect } from "react"
 
 export default function BottomNav() {
-  const [activeTab, setActiveTab] = useState("home")
+  const { activeTab, setActiveTab } = useTabStore()
+  const router = useRouter()
+
+  // ✅ Gunakan useEffect untuk redirect jika user belum login
+  useEffect(() => {
+    const auth = getAuth()
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.replace("/login")
+      }
+    })
+
+    return () => unsubscribe()
+  }, [router])
 
   const renderContent = () => {
     switch (activeTab) {
       case "home":
-        return <Home2/>
-      case "Jaringan":
-        return <Jaringan/>
-      case "Finance":
-        return <div className="p-6 text-xl">🙍‍♂️ Profil Pengguna</div>
-      case "Produk":
-        return <div className="p-6 text-xl">🙍‍♂️ Profil Pengguna</div>
+        return <Home2 />
+      case "jaringan":
+        return <Jaringan />
+      case "finance":
+        return <FinanceDashboard />
+      case "produk":
+        return <ProductList />
       case "settings":
-        return <div className="p-6 text-xl">⚙️ Pengaturan</div>
+        return <AccountSettings />
       default:
         return null
     }
   }
 
+  const navItems = [
+    { key: "home", icon: <Home size={22} /> },
+    { key: "jaringan", icon: <Network size={22} /> },
+    { key: "finance", icon: <Wallet size={22} /> },
+    { key: "produk", icon: <Package size={22} /> },
+    { key: "settings", icon: <Settings size={22} /> },
+  ] as const
+
   return (
-    <div className="flex flex-col min-h-screen">
-      <div className="flex-1">{renderContent()}</div>
+    <div className="flex flex-col min-h-screen bg-gray-50">
+      <main className="flex-1">{renderContent()}</main>
 
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-md flex justify-around py-2">
-        <button
-          onClick={() => setActiveTab("home")}
-          className={`flex flex-col items-center text-sm ${
-            activeTab === "home" ? "text-red-600" : "text-gray-500"
-          }`}
-        >
-          <Home className="w-6 h-6" />
-          Home
-        </button>
-
-        <button
-          onClick={() => setActiveTab("Jaringan")}
-          className={`flex flex-col items-center text-sm ${
-            activeTab === "Jaringan" ? "text-red-600" : "text-gray-500"
-          }`}
-        >
-          <Network className="w-6 h-6" />
-          Jaringan
-        </button>
-        <button
-          onClick={() => setActiveTab("Finance")}
-          className={`flex flex-col items-center text-sm ${
-            activeTab === "Finance" ? "text-red-600" : "text-gray-500"
-          }`}
-        >
-          <BanknoteArrowDown className="w-6 h-6" />
-          Finance
-        </button>
-        <button
-          onClick={() => setActiveTab("Produk")}
-          className={`flex flex-col items-center text-sm ${
-            activeTab === "Produk" ? "text-red-600" : "text-gray-500"
-          }`}
-        >
-          <BottleWine className="w-6 h-6" />
-          Produk
-        </button>
-
-        <button
-          onClick={() => setActiveTab("settings")}
-          className={`flex flex-col items-center text-sm ${
-            activeTab === "settings" ? "text-red-600" : "text-gray-500"
-          }`}
-        >
-          <Settings className="w-6 h-6" />
-          Settings
-        </button>
+      <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-white/70 backdrop-blur-md border border-gray-200 rounded-2xl shadow-lg px-6 py-2 flex justify-between gap-4 w-[90%] max-w-md z-50">
+        {navItems.map(({ key, icon }) => (
+          <button
+            key={key}
+            onClick={() => setActiveTab(key)}
+            className={`p-2 rounded-full transition-all duration-200 hover:bg-red-500 ${
+              activeTab === key ? "bg-red-500 text-white" : "text-gray-500"
+            }`}
+          >
+            {icon}
+          </button>
+        ))}
       </nav>
     </div>
   )

@@ -14,7 +14,7 @@ export default function AdminLoginPage() {
     e.preventDefault()
     try {
       await signInWithEmailAndPassword(auth, email, password)
-      router.push('/admin/dashboard')
+      router.replace('/admin/dashboard')
     } catch (err) {
       setError('Login gagal. Cek email dan password.')
     }
