@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "Asbfamily",
   description: "sehat bersama",
     icons: {
-    icon: "/images/loading.jpeg", // atau /favicon.png
+    icon: "/images/loading.png", // atau /favicon.png
   },
 };
 
@@ -27,7 +27,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-
+  <head>
+        {/* Favicon manual */}
+        <link rel="icon" href="/images/loading.png" type="image/png" />
+        <title>Asbfamily</title>
+      </head>
 
       <body className="bg-base-100 text-base-content">
         <RotatingImage />
