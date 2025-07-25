@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import RotatingImage from "@/components/loadingPage";
-import { Link } from "lucide-react";
-import { Html, Head, Main, NextScript } from 'next/document'
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -29,10 +27,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-  <head>
-        <link rel="icon" href="/images/loading.jpeg" />
-        {/* bisa juga pakai png: <link rel="icon" type="image/png" href="/favicon.png" /> */}
-      </head>
+
+
       <body className="bg-base-100 text-base-content">
         <RotatingImage />
         {children}

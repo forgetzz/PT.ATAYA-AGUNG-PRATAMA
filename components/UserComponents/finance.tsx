@@ -9,14 +9,16 @@ import {
   getDocs,
   addDoc,
   serverTimestamp,
-   query,where
+  query,
+  where,
 } from "firebase/firestore";
-import { getAuth, onAuthStateChanged, } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { Dialog } from "@headlessui/react";
 
 export default function FinanceDashboard() {
-  const [userData, setUserData] = useState<any>(null);
-  const [withdraws, setWithdraws] = useState<any[]>([]);
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [withdraws, setWithdraws] = useState<Withdraw[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -33,59 +35,70 @@ export default function FinanceDashboard() {
     setAmount(rawValue); // disimpan dalam bentuk angka mentah
     setFormattedAmount(formatted); // ditampilkan sebagai angka dengan titik
   };
+  interface UserData {
+    uid: string;
+    email: string;
+    balance: number;
+    bonus: number;
+    nama?: string;
+  }
 
-interface Withdraw {
-  createdAt: {
-    seconds: number;
-    nanoseconds: number;
-  };
-  email: string;
-  jumlah: number;
-  nama: string;
-  rekening: string;
-  status: "Menunggu" | "Diproses" | "Selesai" | "Ditolak"; // Bisa kamu sesuaikan enum-nya
-  uid: string;
-}
+  interface Withdraw {
+    createdAt: {
+      seconds: number;
+      nanoseconds: number;
+    };
+    email: string;
+    jumlah: number;
+    nama: string;
+    rekening: string;
+    status: "Menunggu" | "Diproses" | "Selesai" | "Ditolak"; // Bisa kamu sesuaikan enum-nya
+    uid: string;
+  }
 
+  useEffect(() => {
+    if (!userData?.uid) return;
 
-useEffect(() => {
-  if (!userData?.uid) return;
+    const fetchWithdraws = async () => {
+      try {
+        const q = query(
+          collection(db, "withdraws"),
+          where("uid", "==", userData.uid)
+        );
+        const snapshot = await getDocs(q);
+        const withdrawList: Withdraw[] = [];
 
-  const fetchWithdraws = async () => {
-    try {
-      const q = query(collection(db, "withdraws"), where("uid", "==", userData.uid));
-      const snapshot = await getDocs(q);
-      const withdrawList: Withdraw[] = [];
+        snapshot.forEach((doc) => {
+          const data = doc.data() as Withdraw;
+          withdrawList.push(data);
+        });
 
-      snapshot.forEach((doc) => {
-        const data = doc.data() as Withdraw;
-        withdrawList.push(data);
-      });
+        withdrawList.sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
+        setWithdraws(withdrawList);
+      } catch (error) {
+        console.error("❌ Gagal mengambil data withdraw:", error);
+      }
+    };
 
-      withdrawList.sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
-      setWithdraws(withdrawList);
-    } catch (error) {
-      console.error("❌ Gagal mengambil data withdraw:", error);
-    }
-  };
-
-  fetchWithdraws();
-}, [userData?.uid]);
-
-
-
+    fetchWithdraws();
+  }, [userData?.uid]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        
         const userRef = doc(db, "users", user.uid);
         const userSnap = await getDoc(userRef);
 
         if (userSnap.exists()) {
           const userData = userSnap.data();
-        
-          setUserData({ ...userData, uid: user.uid });
+          console.log(userData);
+          setUserData({
+            uid: userData.uid,
+            email: userData.email,
+            balance: userData.balance,
+            bonus: userData.bonus,
+            nama: userData.nama,
+          });
         } else {
           console.log("⚠️ Dokumen user tidak ditemukan di Firestore");
         }
@@ -123,15 +136,14 @@ useEffect(() => {
         }),
       });
 
-      const data = await res.json(); 
+      const data = await res.json();
 
       if (!res.ok) {
         alert(`Gagal withdraw: ${data.message || "Terjadi kesalahan"}`);
-        return; 
+        return;
       }
 
       alert(`Berhasil withdraw: ${data.message}`);
-
 
       setAmount("");
       setRekening("");
@@ -179,29 +191,33 @@ useEffect(() => {
           <p className="text-gray-500">Belum ada withdraw</p>
         ) : (
           <ul className="space-y-2">
-  {withdraws.map((w, index) => (
-    <li key={index} className="flex justify-between items-center border-b py-2">
-      <div>
-        <p className="font-medium">Rp {w.jumlah?.toLocaleString()}</p>
-        <p className="text-xs text-gray-500">
-          {new Date(w.createdAt?.seconds * 1000).toLocaleString("id-ID")}
-        </p>
-      </div>
-      <span
-        className={`text-sm font-semibold px-2 py-1 rounded-full ${
-          w.status === "Disetujui"
-            ? "bg-green-100 text-green-700"
-            : w.status === "Ditolak"
-            ? "bg-red-100 text-red-700"
-            : "bg-yellow-100 text-yellow-700"
-        }`}
-      >
-        {w.status}
-      </span>
-    </li>
-  ))}
-</ul>
-
+            {withdraws.map((w, index) => (
+              <li
+                key={index}
+                className="flex justify-between items-center border-b py-2"
+              >
+                <div>
+                  <p className="font-medium">Rp {w.jumlah?.toLocaleString()}</p>
+                  <p className="text-xs text-gray-500">
+                    {new Date(w.createdAt?.seconds * 1000).toLocaleString(
+                      "id-ID"
+                    )}
+                  </p>
+                </div>
+                <span
+                  className={`text-sm font-semibold px-2 py-1 rounded-full ${
+                    w.status === "Selesai"
+                      ? "bg-green-100 text-green-700"
+                      : w.status === "Ditolak"
+                      ? "bg-red-100 text-red-700"
+                      : "bg-yellow-100 text-yellow-700"
+                  }`}
+                >
+                  {w.status}
+                </span>
+              </li>
+            ))}
+          </ul>
         )}
       </div>
 
