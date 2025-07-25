@@ -54,7 +54,7 @@ export default function Navbar() {
             <Link href="/login">Login</Link>
           </Button>
           <Button asChild className="bg-red-600 hover:bg-red-700 text-white">
-            <Link href="/signup">Daftar Mitra</Link>
+            <Link href="/singup">Daftar Mitra</Link>
           </Button>
         </div>
 
