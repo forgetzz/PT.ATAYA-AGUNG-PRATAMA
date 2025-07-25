@@ -5,16 +5,7 @@ import {
   createUserWithEmailAndPassword,
   getAuth,
 } from 'firebase/auth';
-import {
-  doc,
-  setDoc,
-  serverTimestamp,
-  getDoc,
-  updateDoc,
-  getFirestore,
-  increment,
-} from 'firebase/firestore';
-import { auth , db} from '@/lib/firebase';
+import { db} from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link'; // Import Link untuk navigasi ke halaman login
 import Image from 'next/image';
@@ -137,9 +128,7 @@ export default function MitraRegisterPage() {
       }, 2000); // Tunggu 2 detik sebelum redirect
     } catch (error: unknown) {
       console.error('Registration error:');
-      let errorMessage = 'Terjadi kesalahan saat mendaftar. Silakan coba lagi.';
-     
-      setError('Registrasi error: ' + errorMessage);
+      setError('Registrasi error: ');
     } finally {
       setLoading(false);
     }
