@@ -26,7 +26,7 @@ export default function Home() {
           <SejarahKami />
         </div>
         
-        <div className="mt-16 px-5"> {/* Adjust this margin as needed */}
+        <div className="mt-16 px-5 border-red-400"> {/* Adjust this margin as needed */}
           <ProductCards />
         </div>
         

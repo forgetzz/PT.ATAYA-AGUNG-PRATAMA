@@ -1,66 +1,31 @@
-"use client";
-
-import Image from "next/image";
-import Link from "next/link";
+import Image from 'next/image'
+import React from 'react'
 
 export default function ProductCards() {
   return (
-    <div id="produk" className="max-w-7xl mx-auto px-6 py-12">
-      {/* Judul Section */}
-      <h1 className="text-4xl font-bold text-gray-800 mb-8 text-center">
-        Produk kami
-      </h1>
-
-      {/* Grid Produk */}
-      <div className="grid md:grid-cols-2 gap-10">
-        {/* Produk A */}
-        <div className="bg-red-50 border border-red-200 rounded-xl shadow hover:shadow-lg transition-all duration-300 overflow-hidden">
-          <div className="relative w-full h-60"> {/* ubah tinggi ke h-60 */}
-            <Image
-              src="/images/produk1.jpeg"
-              alt="Produk A"
-              fill
-              className="object-cover transition-transform duration-300 hover:scale-105"
-            />
-          </div>
-          <div className="p-6">
-            <h2 className="text-xl font-bold text-red-700 mb-2">Produk A</h2>
-            <p className="text-gray-700 mb-4">
-              Ini adalah deskripsi singkat untuk Produk A.
-            </p>
-            <Link
-              href="/produk/1"
-              className="inline-block bg-red-600 text-white px-5 py-2 rounded-lg hover:bg-red-700 transition"
-            >
-              Lihat Detail
-            </Link>
-          </div>
-        </div>
-
-        {/* Produk B */}
-        <div className="bg-red-50 border border-red-200 rounded-xl shadow hover:shadow-lg transition-all duration-300 overflow-hidden">
-          <div className="relative w-full h-60"> {/* ubah tinggi ke h-60 */}
-            <Image
-              src="/images/produk2.jpeg"
-              alt="Produk B"
-              fill
-              className="object-cover transition-transform duration-300 hover:scale-105"
-            />
-          </div>
-          <div className="p-6">
-            <h2 className="text-xl font-bold text-red-700 mb-2">Produk B</h2>
-            <p className="text-gray-700 mb-4">
-              Deskripsi singkat mengenai Produk B yang sangat keren.
-            </p>
-            <Link
-              href="/produk/2"
-              className="inline-block bg-red-600 text-white px-5 py-2 rounded-lg hover:bg-red-700 transition"
-            >
-              Lihat Detail
-            </Link>
-          </div>
+    <div className=''>
+      <h1 className='text-5xl flex items-center justify-center'>Produk <span className='text-red-500'> kami</span></h1>
+      <div className='flex justify-center items-center'>
+        <div className=' flex flex-wrap justify-center items-center gap-20 mt-10 '>
+          <Image
+                  priority
+                   src="/images/produk2.jpeg" // Ganti ini dengan gambar kamu
+                   alt="Loading"
+                   width={200}
+                   height={200}
+                   className=" object-cover"
+                 />
+          <Image
+                  priority
+                   src="/images/produk2.jpeg" // Ganti ini dengan gambar kamu
+                   alt="Loading"
+                   width={200}
+                   height={200}
+                   className=" object-cover"
+                 />
         </div>
       </div>
+     
     </div>
-  );
+  )
 }

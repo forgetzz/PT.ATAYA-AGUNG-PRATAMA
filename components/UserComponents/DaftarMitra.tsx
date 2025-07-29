@@ -317,7 +317,7 @@ export default function MitraRegisterPage() {
             aria-label="ID Sponsor"
           />
           <p className="text-xs text-gray-500 mt-1">
-            Masukkan Username unik sponsor Anda, jika berlaku.
+            Masukkan ID unik sponsor Anda, jika berlaku.
           </p>
         </div>
 

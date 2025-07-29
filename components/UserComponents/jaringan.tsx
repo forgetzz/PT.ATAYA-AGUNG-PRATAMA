@@ -7,6 +7,7 @@ import { db, auth } from '@/lib/firebase';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useTabStore } from "@/store/tabStore"
+import Image from 'next/image';
 
 const connectorColors = [
   'border-red-500',

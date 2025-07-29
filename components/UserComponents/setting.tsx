@@ -124,7 +124,6 @@ export default function AccountSettingsList() {
                   <div className="text-sm text-gray-700 space-y-2">
                     <div><span className="font-medium">Nama:</span> {profileData.name}</div>
                     <div><span className="font-medium">Email:</span> {profileData.email}</div>
-                    <div><span className="font-medium">UID:</span> {profileData.uid}</div>
                     <div><span className="font-medium">Rekening:</span> {profileData.rekening}</div>
                     <div><span className="font-medium">Sponsor:</span> {sponsorName || "Tidak ada"}</div>
                   </div>
