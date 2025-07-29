@@ -237,7 +237,7 @@ export default function MitraRegisterPage() {
             type="numeric"
             placeholder="0896364730"
             onChange={handleChange}
-            value={form.username}
+            value={form.whatsapp}
             aria-label="whatsapp"
           />
         </div>
