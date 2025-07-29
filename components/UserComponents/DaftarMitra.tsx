@@ -10,7 +10,7 @@ interface FormData {
   name: string;
   email: string;
   password: string;
-  sponsorUsername: string[];
+  sponsorUsername: string;
   pin: string;
   whatsapp: string;
   bank: string;
@@ -33,7 +33,7 @@ export default function MitraRegisterPage() {
     name: "",
     email: "",
     password: "",
-    sponsorUsername: [],
+    sponsorUsername: "",
     pin: "",
     whatsapp: "",
     bank: "",
@@ -46,8 +46,8 @@ export default function MitraRegisterPage() {
   ) => {
     const { name, value } = e.target;
     if (name === "sponsorUsername") {
-      const sponsors = value.split(",").map((id) => id.trim());
-      setForm({ ...form, sponsorUsername: sponsors });
+      
+      setForm({ ...form, sponsorUsername:value });
     } else {
       setForm({ ...form, [name]: value });
     }
@@ -115,7 +115,7 @@ export default function MitraRegisterPage() {
             username: form.username,
             email: form.email,
             sponsorUsername:
-              form.sponsorUsername.length > 0 ? form.sponsorUsername : null,
+              form.sponsorUsername,
             bank: form.bank,
             rekening: form.rekening,
             whatsapp: form.whatsapp, 
@@ -313,7 +313,7 @@ export default function MitraRegisterPage() {
             name="sponsorUsername"
             placeholder="Jika ada, pisahkan dengan koma jika lebih dari satu"
             onChange={handleChange}
-            value={form.sponsorUsername.join(", ")} // Tampilkan array sebagai string di input
+            value={form.sponsorUsername} // Tampilkan array sebagai string di input
             aria-label="ID Sponsor"
           />
           <p className="text-xs text-gray-500 mt-1">
