@@ -314,10 +314,10 @@ export default function MitraRegisterPage() {
             placeholder="Jika ada, pisahkan dengan koma jika lebih dari satu"
             onChange={handleChange}
             value={form.sponsorUsername.join(", ")} // Tampilkan array sebagai string di input
-            aria-label="Username Sponsor"
+            aria-label="ID Sponsor"
           />
           <p className="text-xs text-gray-500 mt-1">
-            Masukkan ID unik sponsor Anda, jika berlaku.
+            Masukkan Username unik sponsor Anda, jika berlaku.
           </p>
         </div>
 
