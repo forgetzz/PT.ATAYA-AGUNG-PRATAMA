@@ -86,10 +86,34 @@ const handleRegister = async () => {
   setError(null);
   setSuccess(null);
 
-  const authInstance = getAuth();
-
   try {
-    // 1. Daftarkan akun di Firebase Auth
+    // 1️⃣ Kirim data ke backend untuk validasi
+    const validateResponse = await fetch("https://backend-asb-production.up.railway.app/validate-register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: form.name,
+        username: form.username,
+        email: form.email,
+        sponsorUsername: form.sponsorUsername,
+        bank: form.bank,
+        rekening: form.rekening,
+        whatsapp: form.whatsapp,
+        pin: form.pin,
+      }),
+    });
+
+    const validationData = await validateResponse.json();
+
+    if (!validateResponse.ok) {
+      setError(validationData.message || "Validasi gagal.");
+      return;
+    }
+
+    // 2️⃣ Setelah validasi sukses, buat akun Auth
+    const authInstance = getAuth();
     const userCredential = await createUserWithEmailAndPassword(
       authInstance,
       form.email,
@@ -99,8 +123,8 @@ const handleRegister = async () => {
     const user = userCredential.user;
     const token = await user.getIdToken();
 
-    // 2. Kirim data ke backend
-    const response = await fetch("https://backend-asb-production.up.railway.app/register", {
+    // 3️⃣ Kirim data ke backend untuk simpan ke Firestore
+    const saveResponse = await fetch("https://backend-asb-production.up.railway.app/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -119,32 +143,20 @@ const handleRegister = async () => {
       }),
     });
 
-   const data = await response.json();
+    const saveData = await saveResponse.json();
 
-if (!response.ok) {
-  // Tangani kesalahan saja jika benar-benar gagal
-  console.error("Gagal register:", data);
-  if (data.message === "Data anda tidak ada") {
-    setError("Mohon periksa kembali data yang dimasukkan.");
-  } else {
-    setError(data.message || "Terjadi kesalahan saat registrasi.");
-  }
-  return;
-}
+    if (!saveResponse.ok) {
+      setError(saveData.message || "Gagal menyimpan data.");
+      return;
+    }
 
-// ✅ Jika berhasil, hapus error dan lanjutkan
-setError(null);
-// ...proses sukses misalnya redirect atau tampilkan pesan sukses
-console.log("Berhasil register", data);
-
-    // Sukses
     setSuccess("Registrasi berhasil! Anda akan diarahkan ke halaman login.");
     setTimeout(() => {
       router.push("/login");
     }, 2000);
 
-  } catch (error:unknown) {
-    console.error("Error saat registrasi:", error);
+  } catch (error: unknown) {
+    console.error("❌ Error:", error);
     setError("Terjadi kesalahan saat proses registrasi.");
   } finally {
     setLoading(false);
