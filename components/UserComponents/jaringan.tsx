@@ -31,34 +31,42 @@ export default function NetworkPage() {
   const [loading, setLoading] = useState(true);
   const [userLogin, setUserLogin] = useState<datas>()
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const q = query(
-          collection(db, 'users'),
-          where('sponsorUsername', 'array-contains', user.uid)
-        );
+useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      // Step 1: Ambil username dari dokumen user yang sedang login
+      const userRef = doc(db, 'users', user.uid);
+      const userSnap = await getDoc(userRef);
+      const currentUsername = userSnap.data()?.username;
 
-        const snapshot = await getDocs(q);
+      if (!currentUsername) return;
 
-        const children = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          name: doc.data().name || '',
-          email: doc.data().email || '',
-          roTim: doc.data().RoTim || '',
-          roPribadi: doc.data().ropribadi || '',
-          roStatus: doc.data().roStatus || '',
-          username: doc.data().username || '',
-        }));
+      // Step 2: Cari user lain yang `sponsorUsername` == currentUsername
+      const q = query(
+        collection(db, 'users'),
+        where('sponsorUsername', '==', currentUsername)
+      );
 
-        setDownlines(children);
-        setLoading(false);
-      }
-    });
+      const snapshot = await getDocs(q);
 
-    return () => unsubscribe();
-  }, []);
-  
+      const children = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        name: doc.data().name || '',
+        email: doc.data().email || '',
+        roTim: doc.data().roTim || '',
+        roPribadi: doc.data().ropribadi || '',
+        roStatus: doc.data().roStatus || '',
+        username: doc.data().username || '',
+      }));
+
+      setDownlines(children);
+      setLoading(false);
+    }
+  });
+
+  return () => unsubscribe();
+}, []);
+
   useEffect(() => {
     const userLogin =  onAuthStateChanged(auth, async (user) => {
       if(!user) {return alert("login dulu")}
@@ -127,10 +135,7 @@ export default function NetworkPage() {
           </div>
 
           {/* Email */}
-          <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
-            <span className="font-medium">Email:</span>
-            <span className="truncate ml-2">{userLogin.email}</span>
-          </div>
+        
 
           {/* Status RO */}
           <div className="flex items-center justify-between text-sm mt-3">

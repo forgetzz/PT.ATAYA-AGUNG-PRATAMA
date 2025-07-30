@@ -119,14 +119,23 @@ const handleRegister = async () => {
       }),
     });
 
-    const data = await response.json();
+   const data = await response.json();
 
-    if (!response.ok) {
-      // Jika backend kasih error, tampilkan pesan dari backend
-      console.error("Gagal register:", data.message || data);
-      setError(data.message || "Terjadi kesalahan saat registrasi.");
-      return;
-    }
+if (!response.ok) {
+  // Tangani kesalahan saja jika benar-benar gagal
+  console.error("Gagal register:", data);
+  if (data.message === "Data anda tidak ada") {
+    setError("Mohon periksa kembali data yang dimasukkan.");
+  } else {
+    setError(data.message || "Terjadi kesalahan saat registrasi.");
+  }
+  return;
+}
+
+// ✅ Jika berhasil, hapus error dan lanjutkan
+setError(null);
+// ...proses sukses misalnya redirect atau tampilkan pesan sukses
+console.log("Berhasil register", data);
 
     // Sukses
     setSuccess("Registrasi berhasil! Anda akan diarahkan ke halaman login.");

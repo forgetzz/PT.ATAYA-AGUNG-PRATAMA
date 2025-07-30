@@ -70,7 +70,7 @@ export default function BottomNav() {
         const docSnap = await getDoc(docRef);
 
         if (!docSnap.exists()) {
-          alert("Data anda tidak ada");
+          // alert("Data anda tidak ada");
           return;
         }
 
