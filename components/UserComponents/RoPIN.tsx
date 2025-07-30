@@ -16,7 +16,7 @@ import { onAuthStateChanged } from "firebase/auth";
 
 const ADMIN_EMAILS = ["admin1@gmail.com", "admin2@gmail.com"];
 
-export default function PinProducer() {
+export default function PinRO() {
   const db = getFirestore();
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [pins, setPins] = useState<string[]>([]);
@@ -91,7 +91,7 @@ export default function PinProducer() {
     // Simpan ke pinCollection
     for (const pin of createdPins) {
       const id = generateId();
-      await setDoc(doc(db, "pinCollection", id), {
+      await setDoc(doc(db, "pinCollectionRO", id), {
         id,
         pin,
         owner,
@@ -107,9 +107,9 @@ export default function PinProducer() {
       const userRef = qSnap.docs[0].ref;
 
       await updateDoc(userRef, {
-        PinAktivasi: arrayUnion(
+        pinsRO: arrayUnion(
           ...createdPins.map((pin) => ({
-            Pin: pin,
+            Pin_RO: pin,
             used: false,
             createdAt: new Date().toISOString(),
           }))
@@ -139,7 +139,7 @@ export default function PinProducer() {
     <div className="max-w-lg mx-auto mt-10 p-6 bg-white shadow-lg rounded-2xl">
       <div className="mb-3">
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Email Stokis (pemilik PIN AKTIVASI):
+          Email Stokis (pemilik PIN RO):
         </label>
         <input
           value={owner}

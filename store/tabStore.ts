@@ -1,7 +1,7 @@
 // src/store/tabStore.ts
 import { create } from "zustand";
 
-type TabKey = "home" | "jaringan" | "finance" | "produk" | "settings" | "OrderPIN" | "";
+type TabKey = "home" | "jaringan" | "finance" | "produk" | "settings" | "OrderPIN" | "StockPIN" | "aktivasiRO";
 
 interface TabStore {
   activeTab: TabKey;

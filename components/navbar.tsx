@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
+import { Menu, ArrowRight } from "lucide-react";
 import clsx from "clsx";
 
 export default function Navbar() {
@@ -50,11 +50,11 @@ export default function Navbar() {
 
         {/* Desktop Buttons */}
         <div className="hidden lg:flex gap-2">
-          <Button asChild variant="outline">
-            <Link href="/login">Login</Link>
-          </Button>
+          {/* <Button asChild variant="outline">
+            <Link href="/login">L</Link>
+          </Button> */}
           <Button asChild className="bg-red-600 hover:bg-red-700 text-white">
-            <Link href="/singup">Daftar Mitra</Link>
+            <Link href="/login">Login  <ArrowRight className="ml-2 h-5 w-5" /></Link>
           </Button>
         </div>
 
@@ -83,14 +83,14 @@ export default function Navbar() {
                     {link.label}
                   </Link>
                 ))}
-                <Button asChild variant="outline" className="w-full">
+                {/* <Button asChild variant="outline" className="w-full">
                   <Link href="/login">Login</Link>
-                </Button>
+                </Button> */}
                 <Button
                   asChild
                   className="bg-red-600 hover:bg-red-700 text-white w-full"
                 >
-                  <Link href="/signup">Daftar Mitra</Link>
+                  <Link href="/login">Login Member <ArrowRight className="ml-2 h-5 w-5" /></Link>
                 </Button>
               </div>
             </SheetContent>

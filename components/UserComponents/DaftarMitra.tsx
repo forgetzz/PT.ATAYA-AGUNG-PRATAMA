@@ -46,8 +46,8 @@ export default function MitraRegisterPage() {
   ) => {
     const { name, value } = e.target;
     if (name === "sponsorUsername") {
-      
-      setForm({ ...form, sponsorUsername:value });
+      // const sponsors = value.split(",").map((id) => id.trim());
+      setForm({ ...form, sponsorUsername: value });
     } else {
       setForm({ ...form, [name]: value });
     }
@@ -81,72 +81,66 @@ export default function MitraRegisterPage() {
   //   return true;
   // };
 
-  const handleRegister = async () => {
-    setLoading(true);
-    setError(null);
-    setSuccess(null);
-    const authInstance = getAuth(); // Menggunakan instance auth lokal
+const handleRegister = async () => {
+  setLoading(true);
+  setError(null);
+  setSuccess(null);
 
-    try {
-      // 1. Buat akun baru dengan Firebase Auth
-      const userCredential = await createUserWithEmailAndPassword(
-        authInstance, // Gunakan instance auth lokal
-        form.email,
-        form.password
-      );
+  const authInstance = getAuth();
 
-      const user = userCredential.user;
+  try {
+    // 1. Daftarkan akun di Firebase Auth
+    const userCredential = await createUserWithEmailAndPassword(
+      authInstance,
+      form.email,
+      form.password
+    );
 
-      // 2. Ambil ID token dari user yang baru login
-      const token = await user.getIdToken();
+    const user = userCredential.user;
+    const token = await user.getIdToken();
 
-      // 3. Kirim data user ke backend Express via POST
-      const response = await fetch(
-        "https://backend-asb-production.up.railway.app/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // ID token dari Firebase
-          },
-          body: JSON.stringify({
-            uid: user.uid,
-            name: form.name,
-            username: form.username,
-            email: form.email,
-            sponsorUsername:
-              form.sponsorUsername,
-            bank: form.bank,
-            rekening: form.rekening,
-            whatsapp: form.whatsapp, 
-            pin: form.pin, // ✅ Tambahkan ini
-          }),
-        }
-      );
+    // 2. Kirim data ke backend
+    const response = await fetch("https://backend-asb-production.up.railway.app/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        uid: user.uid,
+        name: form.name,
+        username: form.username,
+        email: form.email,
+        sponsorUsername: form.sponsorUsername,
+        bank: form.bank,
+        rekening: form.rekening,
+        whatsapp: form.whatsapp,
+        pin: form.pin,
+      }),
+    });
 
-      if (!response.ok) {
-        const errorData = await response.json(); // Asumsi backend mengirim JSON error
-        const errMsg =
-          errorData.message ||
-          "Terjadi kesalahan saat menyimpan data ke backend.";
-        console.error("Gagal menyimpan ke backend:", errMsg);
-        // Jika ada akun Firebase yang terbuat tapi gagal di backend, pertimbangkan untuk menghapusnya
-        // await user.delete(); // Ini mungkin perlu penanganan khusus
-        setError("Registrasi gagal: " + errMsg);
-        return;
-      }
+    const data = await response.json();
 
-      setSuccess("Registrasi berhasil! Anda akan diarahkan ke halaman login.");
-      setTimeout(() => {
-        router.push("/login"); // Redirect ke halaman login setelah sukses
-      }, 2000); // Tunggu 2 detik sebelum redirect
-    } catch (error: unknown) {
-      console.error("Registration error:");
-      setError("Registrasi error: ");
-    } finally {
-      setLoading(false);
+    if (!response.ok) {
+      // Jika backend kasih error, tampilkan pesan dari backend
+      console.error("Gagal register:", data.message || data);
+      setError(data.message || "Terjadi kesalahan saat registrasi.");
+      return;
     }
-  };
+
+    // Sukses
+    setSuccess("Registrasi berhasil! Anda akan diarahkan ke halaman login.");
+    setTimeout(() => {
+      router.push("/login");
+    }, 2000);
+
+  } catch (error: any) {
+    console.error("Error saat registrasi:", error?.message || error);
+    setError("Terjadi kesalahan saat proses registrasi.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-white to-gray-500">
@@ -302,7 +296,7 @@ export default function MitraRegisterPage() {
         {/* Input Sponsor ID */}
         <div>
           <label
-            htmlFor="sponsorId"
+            htmlFor="sponsorUsername"
             className="block text-gray-700 text-sm font-semibold mb-2"
           >
             Username Sponsor

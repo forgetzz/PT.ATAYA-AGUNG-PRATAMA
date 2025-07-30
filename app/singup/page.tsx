@@ -115,7 +115,7 @@ export default function MitraRegisterPage() {
             username: form.username,
             email: form.email,
             sponsorUsername:
-              form.sponsorUsername,
+              form.sponsorUsername.length > 0 ? form.sponsorUsername : null,
             bank: form.bank,
             rekening: form.rekening,
             whatsapp: form.whatsapp, 
@@ -308,9 +308,9 @@ export default function MitraRegisterPage() {
             Username Sponsor
           </label>
           <input
-            id="sponsorUsername"
+            id="sponsorId"
             className="w-full px-5 py-3 rounded-lg border-2 border-gray-300 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none transition-all duration-200 bg-white text-gray-900 placeholder-gray-400"
-            name="sponsorUsername"
+            name="sponsorId"
             placeholder="Jika ada, pisahkan dengan koma jika lebih dari satu"
             onChange={handleChange}
             value={form.sponsorUsername.join(", ")} // Tampilkan array sebagai string di input

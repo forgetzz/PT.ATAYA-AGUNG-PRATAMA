@@ -32,9 +32,9 @@ const HeroSection: React.FC = () => {
           Sukses bersama, sehat bersama, ASB pilihan kita.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link href="/singup">
+          <Link href="/login">
             <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl shadow-lg">
-              Daftar Sekarang <ArrowRight className="ml-2 h-5 w-5" />
+              Login Sekarang <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>
           <Link href="#produk">
