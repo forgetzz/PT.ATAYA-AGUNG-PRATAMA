@@ -38,8 +38,8 @@ export default function AktivasiRO() {
 
       setMessage(data.message || "Aktivasi berhasil");
       setPinCode("");
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(message);
     } finally {
       setLoading(false);
     }

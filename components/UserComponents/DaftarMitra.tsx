@@ -134,8 +134,8 @@ const handleRegister = async () => {
       router.push("/login");
     }, 2000);
 
-  } catch (error: any) {
-    console.error("Error saat registrasi:", error?.message || error);
+  } catch (error:unknown) {
+    console.error("Error saat registrasi:", error);
     setError("Terjadi kesalahan saat proses registrasi.");
   } finally {
     setLoading(false);
