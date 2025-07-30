@@ -36,7 +36,7 @@ export default function NetworkPage() {
       if (user) {
         const q = query(
           collection(db, 'users'),
-          where('sponsorId', 'array-contains', user.uid)
+          where('sponsorUsername', 'array-contains', user.uid)
         );
 
         const snapshot = await getDocs(q);
