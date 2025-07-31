@@ -1,13 +1,5 @@
 "use client";
-import {
-  Users,
-  Star,
-  ShieldCheck,
-  ArrowRightLeft,
-  Mail,
-  User,
-} from "lucide-react";
-
+import { Users, Star, ShieldCheck, ArrowRightLeft, User } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import {
   collection,
@@ -22,15 +14,6 @@ import { db, auth } from "@/lib/firebase";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-const connectorColors = [
-  "border-red-500",
-  "border-blue-500",
-  "border-green-500",
-  "border-yellow-500",
-  "border-purple-500",
-  "border-pink-500",
-];
-
 interface UserData {
   id: string;
   name: string;
@@ -39,12 +22,12 @@ interface UserData {
   roPribadi: number;
   roTeam: number;
   username: string;
+  children?: UserData[];
 }
 
 export default function NetworkPage() {
-  const [downlines, setDownlines] = useState<UserData[][]>([]);
+  const [treeRoot, setTreeRoot] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [userLogin, setUserLogin] = useState<UserData>();
   const [totalDownline, setTotalDownline] = useState(0);
 
   useEffect(() => {
@@ -56,7 +39,6 @@ export default function NetworkPage() {
       const userData = userSnap.data();
       if (!userData) return;
 
-      const currentUsername = userData.username;
       const currentUser: UserData = {
         id: user.uid,
         name: userData.name || "",
@@ -66,11 +48,11 @@ export default function NetworkPage() {
         roTeam: userData.roTeam || 0,
         username: userData.username || "",
       };
-      setUserLogin(currentUser);
 
-      const tree = await buildTree(currentUsername);
-      setDownlines(tree);
-      setTotalDownline(tree.flat().length);
+      const fullTree = await buildTree(currentUser);
+      const total = countDownlines(fullTree) - 1;
+      setTotalDownline(total);
+      setTreeRoot(fullTree);
       setLoading(false);
     });
 
@@ -83,32 +65,43 @@ export default function NetworkPage() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto text-gray-800 min-h-screen mb-28">
-      {userLogin && (
-        <div className="flex justify-center mt-6">
-          <UserCard user={userLogin} totalDownline={totalDownline} isRoot />
-        </div>
-      )}
-
-      {downlines.map((level, idx) => (
-        <div key={idx} className="flex flex-nowrap overflow-x-auto gap-4 justify-center my-6">
-          {level.map((user, i) => (
-            <UserCard key={user.id} user={user} connectorColor={connectorColors[i % connectorColors.length]} />
-          ))}
-        </div>
-      ))}
+      {treeRoot && <RenderTree user={treeRoot} isRoot totalDownline={totalDownline} />}
     </div>
   );
 }
 
-function UserCard({ user, totalDownline, connectorColor, isRoot }: {
+function RenderTree({ user, isRoot = false, totalDownline = 0 }: {
   user: UserData;
-  totalDownline?: number;
-  connectorColor?: string;
   isRoot?: boolean;
+  totalDownline?: number;
 }) {
   return (
     <div className="flex flex-col items-center">
-      {!isRoot && <div className={`w-1 h-4 ${connectorColor} border-l-2`} />}
+      <UserCard user={user} isRoot={isRoot} totalDownline={totalDownline} />
+      
+    {user.children && user.children.length > 0 && (
+  <>
+    <div className="h-6 w-px bg-gray-300" />
+    <div className="flex flex-col items-center mt-6 space-y-6">
+      {user.children.map((child) => (
+        <RenderTree key={child.id} user={child} />
+      ))}
+    </div>
+  </>
+)}
+
+    </div>
+  );
+}
+
+
+function UserCard({ user, isRoot = false, totalDownline = 0 }: {
+  user: UserData;
+  isRoot?: boolean;
+  totalDownline?: number;
+}) {
+  return (
+    <div className="flex flex-col items-center">
       <Card className="w-60 border-t-4 border-red-500 bg-white shadow-md hover:shadow-lg transition shrink-0">
         <CardContent className="p-4 text-center space-y-2">
           <div className="w-16 h-16 mx-auto">
@@ -118,18 +111,19 @@ function UserCard({ user, totalDownline, connectorColor, isRoot }: {
               className="w-full h-full rounded-full border-2 border-white shadow-sm object-cover"
             />
           </div>
+
           <div className="text-sm font-semibold text-gray-800 truncate flex items-center justify-center gap-1">
             <User size={14} /> {user.name}
           </div>
           <div className="text-xs text-gray-500 flex items-center justify-center gap-1">
-            <Mail size={12} /> {user.email}
+            @ {user.username}
           </div>
           <div className="text-sm text-left mt-3 space-y-2">
             <InfoItem label="RO Team" icon={<ArrowRightLeft size={12} />} value={user.roTeam} small />
             <InfoItem label="RO Pribadi" icon={<Star size={12} />} value={user.roPribadi} small />
             <StatusBadge active={user.roStatus} small />
           </div>
-          {isRoot && totalDownline !== undefined && (
+          {isRoot && (
             <InfoItem label="Total Downline" icon={<Users size={12} />} value={totalDownline} small />
           )}
           {!isRoot && (
@@ -165,9 +159,7 @@ function StatusBadge({ active, small = false }: { active: boolean; small?: boole
         RO Status:
       </div>
       <span
-        className={`text-xs font-bold px-3 py-1 rounded-full ${
-          active ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-500"
-        }`}
+        className={`text-xs font-bold px-3 py-1 rounded-full ${active ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-500"}`}
       >
         {active ? "Aktif" : "Tidak Aktif"}
       </span>
@@ -175,25 +167,32 @@ function StatusBadge({ active, small = false }: { active: boolean; small?: boole
   );
 }
 
-async function buildTree(username: string, level = 0, maxDepth = 5): Promise<UserData[][]> {
-  if (level >= maxDepth) return [];
-
-  const q = query(collection(db, "users"), where("sponsorUsername", "==", username));
+// 🔁 Recursive tree builder
+async function buildTree(user: UserData): Promise<UserData> {
+  const q = query(collection(db, "users"), where("sponsorUsername", "==", user.username));
   const snapshot = await getDocs(q);
 
-  const children: UserData[] = snapshot.docs.map((doc) => {
-    const d = doc.data();
-    return {
-      id: doc.id,
-      name: d.name || "",
-      email: d.email || "",
-      roStatus: d.roStatus || false,
-      roPribadi: d.roPribadi || 0,
-      roTeam: d.roTeam || 0,
-      username: d.username || "",
-    };
-  });
+  const children: UserData[] = await Promise.all(
+    snapshot.docs.map(async (docSnap) => {
+      const d = docSnap.data();
+      const child: UserData = {
+        id: docSnap.id,
+        name: d.name || "",
+        email: d.email || "",
+        roStatus: d.roStatus || false,
+        roPribadi: d.roPribadi || 0,
+        roTeam: d.roTeam || 0,
+        username: d.username || "",
+      };
+      return await buildTree(child);
+    })
+  );
 
-  const subTrees = await Promise.all(children.map((child) => buildTree(child.username, level + 1, maxDepth)));
-  return [children, ...subTrees.flat()];
+  return { ...user, children };
+}
+
+// 📊 Total counting
+function countDownlines(user: UserData): number {
+  if (!user.children || user.children.length === 0) return 1;
+  return 1 + user.children.reduce((sum, child) => sum + countDownlines(child), 0);
 }
