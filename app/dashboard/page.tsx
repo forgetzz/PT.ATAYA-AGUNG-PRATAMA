@@ -42,6 +42,7 @@ import { db } from "@/lib/firebase";
 import OrderPIN from "@/components/UserComponents/OrderPIn";
 import StockPin from "@/components/UserComponents/StockPin";
 import AktivasiRO from "@/components/UserComponents/aktivasiRo";
+import Footer from "@/components/footer";
 interface dataProfile {
   name: string;
   email: string;
@@ -135,7 +136,7 @@ export default function BottomNav() {
   });
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-fit bg-gray-50">
       <div className="flex justify-between items-center bg-gradient-to-r from-red-500 via-red-600 to-red-700 rounded-b-lg px-4 py-3 text-white shadow-md">
         {/* Kiri: Hari + Halo */}
         <div>
@@ -487,6 +488,7 @@ export default function BottomNav() {
           ))}
         </nav>
       </Sheet>
+      {/* <Footer/> */}
     </div>
   );
 }

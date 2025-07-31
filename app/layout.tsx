@@ -33,7 +33,7 @@ export default function RootLayout({
         <title>Asbfamily</title>
       </head>
 
-      <body className="bg-base-100 text-base-content">
+      <body className="bg-base-100 text-base-content min-h-screen">
         <RotatingImage />
         {children}
       </body>
