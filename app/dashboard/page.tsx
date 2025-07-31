@@ -43,6 +43,7 @@ import OrderPIN from "@/components/UserComponents/OrderPIn";
 import StockPin from "@/components/UserComponents/StockPin";
 import AktivasiRO from "@/components/UserComponents/aktivasiRo";
 import Footer from "@/components/footer";
+import TransferPin from "@/components/UserComponents/transferPIn";
 interface dataProfile {
   name: string;
   email: string;
@@ -113,8 +114,8 @@ export default function BottomNav() {
         return <StockPin />;
       case "aktivasiRO":
         return <AktivasiRO />;
-      // case "TransferPin":
-      //   return <StockPin />;
+      case "TransferPin":
+        return <TransferPin />;
 
       default:
         return null;
@@ -241,8 +242,8 @@ export default function BottomNav() {
                   <button
                     className="block text-sm px-2 py-1 hover:bg-white/10 rounded w-full text-left"
                     onClick={() => {
-                      setActiveTab("StockPIN")
-                      alert("Bisa tambahkan lainnya juga");
+                      setActiveTab("TransferPin")
+ 
                     }}
                   >
                     Transfer PIN

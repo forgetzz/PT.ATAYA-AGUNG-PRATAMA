@@ -133,7 +133,7 @@ export default function OrderPIN() {
                 {type === "aktivasi" ? "PIN Aktivasi" : "PIN RO"}
               </h2>
               <p className="text-sm text-gray-600">
-                Harga: {type === "aktivasi" ? "Rp250.000" : "Rp50.000"}
+                Harga: {type === "aktivasi" ? "Rp3.750.000" : "Rp3.500.000"}
               </p>
             </div>
           </div>
@@ -250,7 +250,7 @@ export default function OrderPIN() {
         </div>
       </Dialog>
       <div>
-        
+
       </div>
     </div>
   );
