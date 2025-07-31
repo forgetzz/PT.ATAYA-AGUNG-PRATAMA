@@ -187,7 +187,7 @@ function InfoItem({
 }: {
   label: string;
   icon: React.ReactNode;
-  value: any;
+value: string | number;
   small?: boolean;
 }) {
   return (
