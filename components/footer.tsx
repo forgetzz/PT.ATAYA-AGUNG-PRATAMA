@@ -71,16 +71,17 @@ export default function Footer() {
         <div className="space-y-3">
           <h3 className="text-xl font-semibold">🚀 Visi Kami</h3>
           <p className="text-sm italic text-gray-100">
-            "Sukses bersama, sehat bersama."
+            Sukses bersama, sehat bersama.
           </p>
         </div>
       </div>
 
       {/* Footer bottom */}
-      <div className="border-t border-white/20 mt-10 pt-4 text-center text-sm text-gray-200">
-        {/* © {new Date().getFullYear()}{" "} */}
-        <strong className="text-white">ASB Family</strong>. All rights reserved.
-      </div>
+     <p className="border-t border-white/20 mt-10 pt-4 text-center text-sm text-gray-200">
+  © {new Date().getFullYear()}{" "}
+  <strong className="text-white">ASB Family</strong>. All rights reserved.
+</p>
+
     </footer>
   );
 }
