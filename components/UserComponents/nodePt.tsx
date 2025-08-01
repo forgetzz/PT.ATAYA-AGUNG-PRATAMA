@@ -120,8 +120,13 @@ function UserTree({ node, isRoot }: { node: UserNode; isRoot?: boolean }) {
   return (
     <div className="flex flex-col items-center">
       <UserCard user={node} isRoot={isRoot} />
+
       {node.children.length > 0 && (
-        <div className="mt-4 flex gap-4 justify-center">
+        <div
+          className={`mt-4 ${
+            isRoot ? "flex flex-row flex-wrap justify-center gap-6" : "flex flex-col items-center gap-4"
+          }`}
+        >
           {node.children.map((child) => (
             <UserTree key={child.id} node={child} />
           ))}
@@ -131,9 +136,10 @@ function UserTree({ node, isRoot }: { node: UserNode; isRoot?: boolean }) {
   );
 }
 
+
 function UserCard({ user, isRoot }: { user: UserNode; isRoot?: boolean }) {
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex  justify-center items-center">
       <Card className="w-60 border-t-4 border-red-500 bg-white shadow-md hover:shadow-lg transition shrink-0">
         <CardContent className="p-4 text-center space-y-2">
           <div className="w-16 h-16 mx-auto relative">
