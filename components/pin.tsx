@@ -107,7 +107,7 @@ export default function PinProducer() {
       const userRef = qSnap.docs[0].ref;
 
       await updateDoc(userRef, {
-        PinAktivasi: arrayUnion(
+        pins: arrayUnion(
           ...createdPins.map((pin) => ({
             Pin: pin,
             used: false,

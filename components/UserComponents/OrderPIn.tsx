@@ -70,7 +70,7 @@ export default function OrderPIN() {
         return;
       }
 
-      const { name = "Tanpa Nama", username = "Tanpa Username" } =
+      const { name = "Tanpa Nama", username = "Tanpa Username", email = "tanpa email" } =
         userDoc.data();
 
       const saveRes = await fetch(
@@ -83,6 +83,7 @@ export default function OrderPIN() {
           },
           body: JSON.stringify({
             name,
+            email,
             username,
             jenis: selectedType,
             jumlah: quantity[selectedType],
