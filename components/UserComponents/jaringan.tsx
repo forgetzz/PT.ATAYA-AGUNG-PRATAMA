@@ -27,7 +27,7 @@ export default function Jaringan() {
 
   return (
     <div>
-      {userEmail === "autosuksesberjmaah@gmail.com" ? <NetworkPage /> : <Membernode />}
+      {userEmail === "autosuksesberjamaah@gmail.com" ? <NetworkPage /> : <Membernode />}
     </div>
   );
 }
