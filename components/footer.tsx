@@ -78,7 +78,7 @@ export default function Footer() {
 
       {/* Footer bottom */}
       <div className="border-t border-white/20 mt-10 pt-4 text-center text-sm text-gray-200">
-        © {new Date().getFullYear()}{" "}
+        {/* © {new Date().getFullYear()}{" "} */}
         <strong className="text-white">ASB Family</strong>. All rights reserved.
       </div>
     </footer>
