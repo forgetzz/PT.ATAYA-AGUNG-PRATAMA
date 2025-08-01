@@ -21,7 +21,8 @@ export default function GlobalLoading() {
 
   return (
     <div className="fixed inset-0 bg-red-950/80 z-[9999] flex flex-col-reverse items-center justify-center">
-      <div className="w-100% h-0% animate-spin-slow">
+     <div className="w-[120px] h-[120px] animate-spin-slow">
+
         <Image
          priority
           src="/images/loading.jpeg" // Ganti ini dengan gambar kamu

@@ -44,6 +44,8 @@ import StockPin from "@/components/UserComponents/StockPin";
 import AktivasiRO from "@/components/UserComponents/aktivasiRo";
 import Footer from "@/components/footer";
 import TransferPin from "@/components/UserComponents/transferPIn";
+import FinanceDashboard from "@/components/UserComponents/finance";
+import BonusBelumDitarik from "@/components/UserComponents/BonusBelumDitarik";
 interface dataProfile {
   name: string;
   email: string;
@@ -116,6 +118,10 @@ export default function BottomNav() {
         return <AktivasiRO />;
       case "TransferPin":
         return <TransferPin />;
+        case "Withdraw":
+        return <FinanceDashboard/>
+        case "TotalBonus":
+          return <BonusBelumDitarik/>
 
       default:
         return null;
@@ -303,7 +309,7 @@ export default function BottomNav() {
                   <button
                     className="block text-sm px-2 py-1 hover:bg-white/10 rounded w-full text-left"
                     onClick={() => {
-                      // setActiveTab("jaringan")
+                      setActiveTab("TotalBonus")
                       setOpen(false);
                     }}
                   >
@@ -312,7 +318,7 @@ export default function BottomNav() {
                   <button
                     className="block text-sm px-2 py-1 hover:bg-white/10 rounded w-full text-left"
                     onClick={() => {
-                      alert("Bisa tambahkan lainnya juga");
+                      setActiveTab("Withdraw")
                     }}
                   >
                     Formulir Penarikan
