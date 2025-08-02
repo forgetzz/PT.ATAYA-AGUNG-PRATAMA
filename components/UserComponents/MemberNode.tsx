@@ -4,11 +4,10 @@ import {
   Star,
   ShieldCheck,
   ArrowRightLeft,
-  Mail,
   User,
+  Search,
 } from "lucide-react";
-
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import {
   collection,
   query,
@@ -16,20 +15,15 @@ import {
   getDocs,
   getDoc,
   doc,
+  Timestamp,
 } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, getAuth } from "firebase/auth";
 import { db, auth } from "@/lib/firebase";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-
-const connectorColors = [
-  "border-red-500",
-  "border-blue-500",
-  "border-green-500",
-  "border-yellow-500",
-  "border-purple-500",
-  "border-pink-500",
-];
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import GlobalLoading from "../loadingPage";
 
 interface UserData {
   id: string;
@@ -39,31 +33,18 @@ interface UserData {
   roPribadi: number;
   roTeam: number;
   username: string;
-  sponsorUsername?: string;
+  createdAt: string; // <- ini wajib ada
+}
+
+interface UserNode extends UserData {
+  children: UserNode[];
+  downlineCount: number;
 }
 
 export default function NetworkPage() {
-  const [downlines, setDownlines] = useState<UserData[][]>([]);
+  const [tree, setTree] = useState<UserNode | null>(null);
   const [loading, setLoading] = useState(true);
-  const [userLogin, setUserLogin] = useState<UserData>();
-  const [totalDownline, setTotalDownline] = useState(0);
-
-  const [search, setSearch] = useState("");
-  const [query, setQuery] = useState("");
-
-  const filteredDownlines = useMemo(() => {
-    if (!query) return downlines;
-    return downlines
-      .map((level) =>
-        level.filter(
-          (user) =>
-            user.name.toLowerCase().includes(query.toLowerCase()) ||
-            user.username.toLowerCase().includes(query.toLowerCase()) ||
-            user.email.toLowerCase().includes(query.toLowerCase())
-        )
-      )
-      .filter((level) => level.length > 0);
-  }, [query, downlines]);
+  const [searchUsername, setSearchUsername] = useState("");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -74,103 +55,108 @@ export default function NetworkPage() {
       const userData = userSnap.data();
       if (!userData) return;
 
-      const currentUsername = userData.username;
-      const currentUser: UserData = {
-        id: user.uid,
-        name: userData.name || "",
-        email: userData.email || "",
-        roStatus: userData.roStatus || false,
-        roPribadi: userData.roPribadi || 0,
-        roTeam: userData.roTeam || 0,
-        username: userData.username || "",
-        sponsorUsername: "",
-      };
-      setUserLogin(currentUser);
-
-      const isCompanyEmail = userData.email?.endsWith("@perusahaan.com");
-
-      const tree = await buildTree(currentUsername, 0, isCompanyEmail ? 5 : 1);
-      setDownlines(tree);
-      setTotalDownline(tree.flat().length);
+      const rootNode = await buildTree(userData.username);
+      setTree(rootNode);
       setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    if (search === "") {
-      setQuery("");
-    }
-  }, [search]);
+  const handleSearch = async () => {
+    setLoading(true);
 
-  if (loading) {
-    return <div className="p-10 text-xl text-center text-gray-600">Loading jaringan...</div>;
-  }
+    const trimmed = searchUsername.trim();
+    let usernameToSearch = trimmed;
+
+    if (!trimmed) {
+      const auth = getAuth();
+      const currentUser = auth.currentUser;
+
+      if (currentUser && currentUser.displayName) {
+        usernameToSearch = currentUser.displayName;
+      } else {
+        console.error("Tidak bisa mendapatkan user login");
+        setLoading(false);
+        return;
+      }
+    }
+
+    try {
+      const rootNode = await buildTree(usernameToSearch);
+      setTree(rootNode);
+    } catch (error) {
+      console.error("Gagal membangun tree:", error);
+    }
+
+    setLoading(false);
+  };
 
   return (
     <div className="p-6 max-w-7xl mx-auto text-gray-800 min-h-screen mb-28">
-      <div className="flex items-center justify-center gap-2 my-4">
-        <input
-          type="text"
-          placeholder="Cari nama / username / email..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="border px-3 py-2 rounded w-full max-w-sm"
+      <div className="mb-6 flex gap-2 items-center">
+        <Input
+          placeholder="Cari berdasarkan username"
+          value={searchUsername}
+          onChange={(e) => setSearchUsername(e.target.value)}
+          className="w-72"
         />
-        <button
-          onClick={() => setQuery(search.trim())}
-          className="bg-red-600 text-white px-4 py-2 rounded"
-        >
-          Search
-        </button>
+        <Button onClick={handleSearch}>
+          <Search size={16} className="mr-1" /> Cari
+        </Button>
       </div>
 
-      {userLogin && (
-        <div className="flex justify-center mt-6">
-          <UserCard user={userLogin} totalDownline={totalDownline} isRoot />
-        </div>
-      )}
+    {loading ? (
+  <div className="flex justify-center items-center max-h-full mt-10">
+    <div className="">
+      <h1 className="text-red-500 flex justify-center mt-16 w-[120px] h-[120px] animate-spin-slow">
+        <img src="images/loading.png" alt="" className="rounded-full" />
+      </h1>
+    </div>
+  </div>
+) : tree ? (
+  <>
+    {flattenTreeSortedByDate(tree).map((user, index) => (
+      <div key={user.id} className="my-2">
+        <UserCard user={user} isRoot={index === 0} />
+      </div>
+    ))}
+  </>
+) : (
+  <div className="text-center text-gray-500">User tidak ditemukan.</div>
+)}
 
-      {filteredDownlines.map((level, idx) => (
-        <div key={idx} className="flex flex-col items-center gap-4 justify-center my-6">
-          {level.map((user, i) => {
-            const nextLevel = filteredDownlines[idx + 1] || [];
-            const downlineCount = nextLevel.filter((u) => u.sponsorUsername === user.username).length;
-            return (
-              <UserCard
-                key={user.id}
-                user={user}
-                connectorColor={connectorColors[i % connectorColors.length]}
-                downlineCount={downlineCount}
-              />
-            );
-          })}
-        </div>
-      ))}
     </div>
   );
 }
 
-function UserCard({
-  user,
-  totalDownline,
-  downlineCount,
-  connectorColor,
-  isRoot,
-}: {
-  user: UserData;
-  totalDownline?: number;
-  downlineCount?: number;
-  connectorColor?: string;
-  isRoot?: boolean;
-}) {
+function UserTree({ node, isRoot }: { node: UserNode; isRoot?: boolean }) {
   return (
-    <div className="flex flex-wrap items-center">
-      {!isRoot && <div className={`w-1 h-4 ${connectorColor} border-l-2`} />}
+    <div className="flex flex-col items-center">
+      <UserCard user={node} isRoot={isRoot} />
+
+  {node.children.length > 0 && (
+  <div className="mt-4 flex flex-col items-center gap-4">
+    {[...node.children]
+      .sort((a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      )
+      .map((child) => (
+        <UserTree key={child.id} node={child} />
+      ))}
+  </div>
+)}
+
+    </div>
+  );
+}
+
+function UserCard({ user, isRoot }: { user: UserNode; isRoot?: boolean }) {
+  return (
+    <div className="flex  justify-center items-center">
       <Card className="w-60 border-t-4 border-red-500 bg-white shadow-md hover:shadow-lg transition shrink-0">
         <CardContent className="p-4 text-center space-y-2">
-          <div className="w-16 h-16 mx-auto">
+          <div className="w-16 h-16 mx-auto relative">
             <img
               src={`https://i.pravatar.cc/100?u=${user.email}`}
               alt={user.name}
@@ -182,19 +168,29 @@ function UserCard({
             <User size={14} /> {user.name}
           </div>
           <div className="text-xs text-gray-500 flex items-center justify-center gap-1">
-            @ {user.username}
+            @{user.username}
           </div>
           <div className="text-sm text-left mt-3 space-y-2">
-            <InfoItem label="RO Team" icon={<ArrowRightLeft size={12} />} value={user.roTeam} small />
-            <InfoItem label="RO Pribadi" icon={<Star size={12} />} value={user.roPribadi} small />
+            <InfoItem
+              label="RO Team"
+              icon={<ArrowRightLeft size={12} />}
+              value={user.roTeam}
+              small
+            />
+            <InfoItem
+              label="RO Pribadi"
+              icon={<Star size={12} />}
+              value={user.roPribadi}
+              small
+            />
             <StatusBadge active={user.roStatus} small />
-            {!isRoot && (
-              <InfoItem label="Downline" icon={<Users size={12} />} value={downlineCount || 0} small />
-            )}
+            <InfoItem
+              label="Jumlah Mitra"
+              icon={<Users size={12} />}
+              value={user.downlineCount}
+              small
+            />
           </div>
-          {isRoot && totalDownline !== undefined && (
-            <InfoItem label="Total Downline" icon={<Users size={12} />} value={totalDownline} small />
-          )}
           {!isRoot && (
             <Badge className="text-[10px] bg-red-600 text-white px-2 py-0.5">
               Mitra
@@ -218,7 +214,11 @@ function InfoItem({
   small?: boolean;
 }) {
   return (
-    <div className={`flex items-center justify-between ${small ? "text-xs" : "text-sm"} text-gray-600`}>
+    <div
+      className={`flex items-center justify-between ${
+        small ? "text-xs" : "text-sm"
+      } text-gray-600`}
+    >
       <div className="flex items-center gap-2">
         {icon} {label}:
       </div>
@@ -235,7 +235,11 @@ function StatusBadge({
   small?: boolean;
 }) {
   return (
-    <div className={`flex items-center  justify-between ${small ? "text-xs" : "text-sm"} text-gray-600`}>
+    <div
+      className={`flex items-center justify-between ${
+        small ? "text-xs" : "text-sm"
+      } text-gray-600`}
+    >
       <div className="flex items-center gap-2">
         <ShieldCheck size={12} />
         RO Status:
@@ -250,27 +254,97 @@ function StatusBadge({
     </div>
   );
 }
+async function buildTree(
+  username: string,
+  depth = 0,
+  maxDepth = 5
+): Promise<UserNode | null> {
+  if (depth >= maxDepth) return null;
 
-async function buildTree(username: string, level = 0, maxDepth = 5): Promise<UserData[][]> {
-  if (level >= maxDepth) return [];
-
-  const q = query(collection(db, "users"), where("sponsorUsername", "==", username));
+  // Ambil user sebagai root
+  const q = query(collection(db, "users"), where("username", "==", username));
   const snapshot = await getDocs(q);
+  if (snapshot.empty) return null;
 
-  const children: UserData[] = snapshot.docs.map((doc) => {
-    const d = doc.data();
-    return {
-      id: doc.id,
-      name: d.name || "",
-      email: d.email || "",
-      roStatus: d.roStatus || false,
-      roPribadi: d.roPribadi || 0,
-      roTeam: d.roTeam || 0,
-      username: d.username || "",
-      sponsorUsername: d.sponsorUsername || "",
-    };
+  const rootDoc = snapshot.docs[0];
+  const rootData = rootDoc.data();
+
+  const node: UserNode = {
+    id: rootDoc.id,
+    name: rootData.name || "",
+    email: rootData.email || "",
+    roStatus: rootData.roStatus || false,
+    roPribadi: rootData.roPribadi || 0,
+    roTeam: rootData.roTeam || 0,
+    username: rootData.username || "",
+    children: [],
+    downlineCount: 0,
+    createdAt:
+      typeof rootData.createdAt === "string"
+        ? rootData.createdAt
+        : rootData.createdAt?.toDate().toISOString() ??
+          new Date().toISOString(),
+  };
+
+  // Ambil anak-anak dari user ini (downline langsung)
+  const childQuery = query(
+    collection(db, "users"),
+    where("sponsorUsername", "==", username)
+  );
+  const childSnapshot = await getDocs(childQuery);
+
+  // Sort berdasarkan tanggal pembuatan (lama ke baru)
+  const sortedChildren = childSnapshot.docs.sort((a, b) => {
+    const aDate = a.data().createdAt?.toDate?.() ?? new Date(0);
+    const bDate = b.data().createdAt?.toDate?.() ?? new Date(0);
+    return aDate.getTime() - bDate.getTime(); // ASC
   });
 
-  const subTrees = await Promise.all(children.map((child) => buildTree(child.username, level + 1, maxDepth)));
-  return [children, ...subTrees.flat()];
+  for (const doc of sortedChildren) {
+    const data = doc.data();
+
+    const childNode: UserNode = {
+      id: doc.id,
+      name: data.name || "",
+      email: data.email || "",
+      roStatus: data.roStatus || false,
+      roPribadi: data.roPribadi || 0,
+      roTeam: data.roTeam || 0,
+      username: data.username || "",
+      children: [],
+      downlineCount: 0,
+      createdAt:
+        typeof data.createdAt === "string"
+          ? data.createdAt
+          : data.createdAt?.toDate().toISOString() ??
+            new Date().toISOString(),
+    };
+
+    console.log("Anak ditemukan:", {
+      username: childNode.username,
+      createdAt: childNode.createdAt,
+    });
+
+    const deeper = await buildTree(childNode.username, depth + 1, maxDepth);
+    if (deeper) {
+      childNode.children = deeper.children;
+      childNode.downlineCount = deeper.downlineCount;
+    }
+
+    node.children.push(childNode);
+    node.downlineCount += 1 + childNode.downlineCount;
+  }
+
+  return node;
+}
+function flattenTreeSortedByDate(node: UserNode): UserNode[] {
+  let result: UserNode[] = [node];
+
+  for (const child of node.children) {
+    result = result.concat(flattenTreeSortedByDate(child));
+  }
+
+  return result.sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  );
 }

@@ -15,6 +15,7 @@ import {
   getDocs,
   getDoc,
   doc,
+  Timestamp,
 } from "firebase/firestore";
 import { onAuthStateChanged, getAuth } from "firebase/auth";
 import { db, auth } from "@/lib/firebase";
@@ -31,6 +32,7 @@ interface UserData {
   roPribadi: number;
   roTeam: number;
   username: string;
+  createdAt: string; // <- ini wajib ada
 }
 
 interface UserNode extends UserData {
@@ -117,6 +119,9 @@ export default function NetworkPage() {
 }
 
 function UserTree({ node, isRoot }: { node: UserNode; isRoot?: boolean }) {
+  console.log("createdAt type:", typeof node.children[0]?.createdAt);
+  console.log("createdAt value:", node.children[0]?.createdAt);
+
   return (
     <div className="flex flex-col items-center">
       <UserCard user={node} isRoot={isRoot} />
@@ -124,18 +129,25 @@ function UserTree({ node, isRoot }: { node: UserNode; isRoot?: boolean }) {
       {node.children.length > 0 && (
         <div
           className={`mt-4 ${
-            isRoot ? "flex flex-row flex-wrap justify-center gap-6" : "flex flex-col items-center gap-4"
+            isRoot
+              ? "flex flex-row flex-wrap justify-center gap-6"
+              : "flex flex-col items-center gap-4"
           }`}
         >
-          {node.children.map((child) => (
-            <UserTree key={child.id} node={child} />
-          ))}
+          {[...node.children]
+            .sort(
+              (a, b) =>
+                new Date(a.createdAt).getTime() -
+                new Date(b.createdAt).getTime()
+            )
+            .map((child) => (
+              <UserTree key={child.id} node={child} />
+            ))}
         </div>
       )}
     </div>
   );
 }
-
 
 function UserCard({ user, isRoot }: { user: UserNode; isRoot?: boolean }) {
   return (
@@ -157,10 +169,25 @@ function UserCard({ user, isRoot }: { user: UserNode; isRoot?: boolean }) {
             @{user.username}
           </div>
           <div className="text-sm text-left mt-3 space-y-2">
-            <InfoItem label="RO Team" icon={<ArrowRightLeft size={12} />} value={user.roTeam} small />
-            <InfoItem label="RO Pribadi" icon={<Star size={12} />} value={user.roPribadi} small />
+            <InfoItem
+              label="RO Team"
+              icon={<ArrowRightLeft size={12} />}
+              value={user.roTeam}
+              small
+            />
+            <InfoItem
+              label="RO Pribadi"
+              icon={<Star size={12} />}
+              value={user.roPribadi}
+              small
+            />
             <StatusBadge active={user.roStatus} small />
-            <InfoItem label="Jumlah Downline" icon={<Users size={12} />} value={user.downlineCount} small />
+            <InfoItem
+              label="Jumlah Downline"
+              icon={<Users size={12} />}
+              value={user.downlineCount}
+              small
+            />
           </div>
           {!isRoot && (
             <Badge className="text-[10px] bg-red-600 text-white px-2 py-0.5">
@@ -185,8 +212,14 @@ function InfoItem({
   small?: boolean;
 }) {
   return (
-    <div className={`flex items-center justify-between ${small ? "text-xs" : "text-sm"} text-gray-600`}>
-      <div className="flex items-center gap-2">{icon} {label}:</div>
+    <div
+      className={`flex items-center justify-between ${
+        small ? "text-xs" : "text-sm"
+      } text-gray-600`}
+    >
+      <div className="flex items-center gap-2">
+        {icon} {label}:
+      </div>
       <span className="font-semibold text-gray-800">{value}</span>
     </div>
   );
@@ -200,7 +233,11 @@ function StatusBadge({
   small?: boolean;
 }) {
   return (
-    <div className={`flex items-center justify-between ${small ? "text-xs" : "text-sm"} text-gray-600`}>
+    <div
+      className={`flex items-center justify-between ${
+        small ? "text-xs" : "text-sm"
+      } text-gray-600`}
+    >
       <div className="flex items-center gap-2">
         <ShieldCheck size={12} />
         RO Status:
@@ -240,6 +277,7 @@ async function buildTree(
     username: d.username || "",
     children: [],
     downlineCount: 0,
+    createdAt: d.createdAt ?? new Date().toISOString(), // fallback kalau tidak ada
   };
 
   const childQuery = query(

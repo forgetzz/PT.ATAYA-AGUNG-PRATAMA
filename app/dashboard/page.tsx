@@ -42,10 +42,13 @@ import { db } from "@/lib/firebase";
 import OrderPIN from "@/components/UserComponents/OrderPIn";
 import StockPin from "@/components/UserComponents/StockPin";
 import AktivasiRO from "@/components/UserComponents/aktivasiRo";
-import Footer from "@/components/footer";
 import TransferPin from "@/components/UserComponents/transferPIn";
 import FinanceDashboard from "@/components/UserComponents/finance";
 import BonusBelumDitarik from "@/components/UserComponents/BonusBelumDitarik";
+import Manajemenbonus from "@/components/UserComponents/ManajmeneBonus";
+import Bonusrewardperingkat from "@/components/UserComponents/RewardPeringkat";
+import BonusRewardUtama from "@/components/UserComponents/bonusrewardutama";
+
 interface dataProfile {
   name: string;
   email: string;
@@ -122,6 +125,12 @@ export default function BottomNav() {
         return <FinanceDashboard/>
         case "TotalBonus":
           return <BonusBelumDitarik/>
+          case "ManajemenBonus":
+            return <Manajemenbonus/>
+          case "RewardPeringkat":
+            return <Bonusrewardperingkat/>
+            case "RewardUtama" : 
+            return <BonusRewardUtama/>
 
       default:
         return null;
@@ -197,7 +206,7 @@ export default function BottomNav() {
             <button
               className="w-full flex items-center gap-2 px-2 py-2 hover:bg-white/10 rounded mt-2"
               onClick={() => {
-                setActiveTab("home");
+                setActiveTab("ManajemenBonus");
                 setOpen(false);
               }}
             >
@@ -240,7 +249,7 @@ export default function BottomNav() {
                   <button
                     className="block text-sm px-2 py-1 hover:bg-white/10 rounded w-full text-left"
                     onClick={() => {
-                      alert("Bisa tambahkan lainnya juga");
+                     setActiveTab("StockPIN")
                     }}
                   >
                     Stock PIN
@@ -391,7 +400,7 @@ export default function BottomNav() {
                   <button
                     className="block text-sm px-2 py-1 hover:bg-white/10 rounded w-full text-left"
                     onClick={() => {
-                      setActiveTab("jaringan");
+                      setActiveTab("RewardUtama");
                       setOpen(false);
                     }}
                   >
@@ -400,7 +409,7 @@ export default function BottomNav() {
                   <button
                     className="block text-sm px-2 py-1 hover:bg-white/10 rounded w-full text-left"
                     onClick={() => {
-                      setActiveTab("jaringan");
+                      setActiveTab("RewardPeringkat");
                       setOpen(false);
                     }}
                   >
