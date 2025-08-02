@@ -26,7 +26,7 @@ import {
   NotebookIcon,
 } from "lucide-react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import Home2 from "@/components/UserComponents/home";
+
 import Jaringan from "@/components/UserComponents/jaringan";
 import ProductList from "@/components/UserComponents/produk";
 import AccountSettings from "@/components/UserComponents/setting";
@@ -48,6 +48,10 @@ import BonusBelumDitarik from "@/components/UserComponents/BonusBelumDitarik";
 import Manajemenbonus from "@/components/UserComponents/ManajmeneBonus";
 import Bonusrewardperingkat from "@/components/UserComponents/RewardPeringkat";
 import BonusRewardUtama from "@/components/UserComponents/bonusrewardutama";
+import Daftarreseller from "@/components/UserComponents/DaftarReseller";
+import Rewardreseller from "@/components/UserComponents/RewardReseller.tsx";
+import Inputpenjualanreseller from "@/components/UserComponents/inputpenjualanreseller";
+import Home2 from "@/components/UserComponents/home"
 
 interface dataProfile {
   name: string;
@@ -131,6 +135,12 @@ export default function BottomNav() {
             return <Bonusrewardperingkat/>
             case "RewardUtama" : 
             return <BonusRewardUtama/>
+            case "DaftarReseller": 
+            return <Daftarreseller/>
+            case "RewardReseller" :
+              return <Rewardreseller/>
+              case "InputReseller":
+                return <Inputpenjualanreseller/>
 
       default:
         return null;
@@ -452,7 +462,7 @@ export default function BottomNav() {
                   <button
                     className="block text-sm px-2 py-1 hover:bg-white/10 rounded w-full text-left"
                     onClick={() => {
-                      // setActiveTab("jaringan")
+                      setActiveTab("DaftarReseller")
                       setOpen(false);
                     }}
                   >
@@ -461,7 +471,7 @@ export default function BottomNav() {
                   <button
                     className="block text-sm px-2 py-1 hover:bg-white/10 rounded w-full text-left"
                     onClick={() => {
-                      alert("Bisa tambahkan lainnya juga");
+                      setActiveTab("InputReseller")
                     }}
                   >
                     Input Penjualan
@@ -469,7 +479,7 @@ export default function BottomNav() {
                   <button
                     className="block text-sm px-2 py-1 hover:bg-white/10 rounded w-full text-left"
                     onClick={() => {
-                      alert("Bisa tambahkan lainnya juga");
+                      setActiveTab("RewardReseller")
                     }}
                   >
                     Reward Reseller

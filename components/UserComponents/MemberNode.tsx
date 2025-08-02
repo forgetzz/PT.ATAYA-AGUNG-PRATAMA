@@ -46,7 +46,23 @@ export default function NetworkPage() {
   const [loading, setLoading] = useState(true);
   const [searchUsername, setSearchUsername] = useState("");
 
-  useEffect(() => {
+useEffect(() => {
+  const fetchData = async () => {
+    // Cek apakah ada cache yang masih valid (<10 menit)
+    const cachedTree = localStorage.getItem("cachedTree");
+    const cachedUsername = localStorage.getItem("cachedUsername");
+    const cachedTime = localStorage.getItem("cachedTime");
+
+    if (cachedTree && cachedUsername && cachedTime) {
+      const age = Date.now() - parseInt(cachedTime);
+      if (age < 10 * 60 * 1000) {
+        setTree(JSON.parse(cachedTree));
+        setLoading(false);
+        return;
+      }
+    }
+
+    // Jika tidak ada cache, fetch dari Firestore
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (!user) return;
 
@@ -57,40 +73,58 @@ export default function NetworkPage() {
 
       const rootNode = await buildTree(userData.username);
       setTree(rootNode);
+
+      // Simpan ke cache
+      localStorage.setItem("cachedTree", JSON.stringify(rootNode));
+      localStorage.setItem("cachedUsername", userData.username);
+      localStorage.setItem("cachedTime", Date.now().toString());
+
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
-
-  const handleSearch = async () => {
-    setLoading(true);
-
-    const trimmed = searchUsername.trim();
-    let usernameToSearch = trimmed;
-
-    if (!trimmed) {
-      const auth = getAuth();
-      const currentUser = auth.currentUser;
-
-      if (currentUser && currentUser.displayName) {
-        usernameToSearch = currentUser.displayName;
-      } else {
-        console.error("Tidak bisa mendapatkan user login");
-        setLoading(false);
-        return;
-      }
-    }
-
-    try {
-      const rootNode = await buildTree(usernameToSearch);
-      setTree(rootNode);
-    } catch (error) {
-      console.error("Gagal membangun tree:", error);
-    }
-
-    setLoading(false);
   };
+
+  fetchData();
+}, []);
+
+
+const handleSearch = async () => {
+  setLoading(true);
+  const trimmed = searchUsername.trim();
+  let usernameToSearch = trimmed;
+
+  if (!trimmed) {
+    const currentUser = auth.currentUser;
+    if (currentUser && currentUser.displayName) {
+      usernameToSearch = currentUser.displayName;
+    } else {
+      console.error("Tidak bisa mendapatkan user login");
+      setLoading(false);
+      return;
+    }
+  }
+
+  try {
+    // Hapus cache lama
+    localStorage.removeItem("cachedTree");
+    localStorage.removeItem("cachedUsername");
+    localStorage.removeItem("cachedTime");
+
+    const rootNode = await buildTree(usernameToSearch);
+    setTree(rootNode);
+
+    // Simpan cache baru
+    localStorage.setItem("cachedTree", JSON.stringify(rootNode));
+    localStorage.setItem("cachedUsername", usernameToSearch);
+    localStorage.setItem("cachedTime", Date.now().toString());
+  } catch (error) {
+    console.error("Gagal membangun tree:", error);
+  }
+
+  setLoading(false);
+};
+
 
   return (
     <div className="p-6 max-w-7xl mx-auto text-gray-800 min-h-screen mb-28">
@@ -107,7 +141,7 @@ export default function NetworkPage() {
       </div>
 
     {loading ? (
-  <div className="flex justify-center items-center max-h-full mt-10">
+  <div className="flex justify-center items-center max-h-full mt-56">
     <div className="">
       <h1 className="text-red-500 flex justify-center mt-16 w-[120px] h-[120px] animate-spin-slow">
         <img src="images/loading.png" alt="" className="rounded-full" />

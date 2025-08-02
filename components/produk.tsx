@@ -29,8 +29,8 @@ export default function ProductCards() {
             />
           </div>
           <div className="p-6">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-2">Kopi ASB</h2>
-            <p className="text-gray-600 mb-4">Kopi pilihan terbaik dengan rasa khas dan aroma menggoda.</p>
+            <h2 className="text-2xl font-semibold text-gray-800 mb-2">ASB BOOSTER</h2>
+            <p className="text-gray-600 mb-4">ASB Boostrer untuk meningkatkan imunitas anak</p>
             <button className="w-full bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg text-sm font-semibold transition duration-200">
               Lihat Detail
             </button>
@@ -50,8 +50,8 @@ export default function ProductCards() {
             />
           </div>
           <div className="p-6">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-2">Teh ASB</h2>
-            <p className="text-gray-600 mb-4">Teh premium yang menenangkan, cocok untuk menemani hari Anda.</p>
+            <h2 className="text-2xl font-semibold text-gray-800 mb-2">ASB OIL</h2>
+            <p className="text-gray-600 mb-4">Asb oil mengatasi nyeri sendi, batu dan demam dan mengatasi patah tulang</p>
             <button className="w-full bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg text-sm font-semibold transition duration-200">
               Lihat Detail
             </button>

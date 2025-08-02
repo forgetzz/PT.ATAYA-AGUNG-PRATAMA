@@ -1,135 +1,175 @@
-"use client";
-import { onAuthStateChanged } from "firebase/auth";
-
-
-import {
-  BadgePercent,
-  Users,
-  ShoppingCart,
-  Wallet,
-  Menu,
-  ChevronRight,
-  Settings,
-} from "lucide-react";
-
-import { Card, CardContent } from "@/components/ui/card";
 import React, { useEffect, useState } from "react";
-import { useTabStore } from "@/store/tabStore";
-import { getAuth } from "firebase/auth";
-import { db } from "@/lib/firebase";
-import { getDoc, doc } from "firebase/firestore";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-  SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import { Copy } from "lucide-react";
-import Link from "next/link";
+import { Users } from "lucide-react";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { collection, doc, getDoc } from "firebase/firestore";
+import {  db } from "@/lib/firebase";
+interface datas {
+  name : string
+  email : string
+  username : string
+  bonus : number 
+  bonusRO: number
+  Pin : string[]
+  Pin_RO : string[]
 
-interface DataProfil {
-  name: string;
-  bonus: string;
-  uid: string;
-  username: string
+}
+interface datasDua {
+  mitra : string 
+  
 }
 
-export default function Home() {
-  const user = getAuth().currentUser;
-  const dbRef = db;
-  const [open, setOpen] = useState(false);
-  const [profile, setProfil] = useState<DataProfil>();
-  const [copied, setCopied] = useState(false);
-useEffect(() => {
-  const unsubscribe = onAuthStateChanged(getAuth(), async (user) => {
-    if (!user) return;
+export default function Home2() {
+  const [profile, setProfile] = useState <datas>()
+  const [mitra, setMitra] = useState <datasDua>()
 
-    try {
-      const docRef = doc(db, "users", user.uid);
-      const docSnap = await getDoc(docRef);
+ useEffect(() => {
+const unsub = onAuthStateChanged(getAuth(), async(user) => {
+  if (!user) return alert("login dulu")
 
-      if (docSnap.exists()) {
-        const res = docSnap.data() as DataProfil;
-        setProfil(res);
-      } else {
-        console.warn("Data pengguna tidak ditemukan di Firestore.");
-      }
-    } catch (err) {
-      console.error("Gagal mengambil data user:", err);
+  try{
+    const dbRef = await getDoc(doc(db, "users", user.uid))
+    if(!dbRef.exists()) {
+      return alert("data anda belum ada")
     }
-  });
+    const dataDb = dbRef.data() as datas
+    setProfile(dataDb)
+    const dataMitra = await collection(db,"users")
+    const eksekusi = dataMitra
+    console.log("MAAF AKUN ADA BELUM ADA")
+  } catch {
+    console.error("Kesalahan pada data anda")
+  }
 
-  return () => unsubscribe(); // Bersihkan listener saat unmount
-}, []);
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(profile?.uid || "");
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Gagal menyalin UID:", err);
-    }
-  };
-  const { setActiveTab } = useTabStore();
-
-  const menuLinks = [
-    { label: "Beranda", href: "#features" },
-    { label: "Tentang Kami", href: "#features" },
-    { label: "Produk", href: "#produk" },
-    { label: "Kemitraan", href: "#halo" },
-    { label: "Kontak", href: "#contact" },
-  ];
+})
+return () => unsub()
+ },[])
 
   return (
-    <div className="min-h-screen text-black px-4 py-6 font-sans sm:px-6 md:px-8 lg:px-12">
+    <div className="p-6 space-y-6 text-gray-800">
       {/* Header */}
-      {/* Meningkatkan mb-4 menjadi mb-6 untuk jarak yang lebih lega */}
-      <div className="flex items-center justify-between mb-6 text-black">
-        <div className="flex items-center gap-3">
-       
-          <div>
-
-            <h2 className="text-base sm:text-lg font-bold"> Selamat Datang,
-              {profile?.name}
-            </h2>
-            <p className="text-sm text-black/50">ini adalah ringkasan akitvitas dan pencapaian anda</p>
-          </div>
-        </div>
-
-        {/* Ganti Bell => Menu dengan Sheet */}
-       
+      <div>
+        <h1 className="text-2xl font-bold">Selamat Datang, {profile?.name}!</h1>
+        <p className="text-sm text-gray-600">
+          Ini adalah ringkasan aktivitas dan pencapaian Anda.
+        </p>
       </div>
 
-      {/* Saldo ringkas */}
-      {/* Menambahkan rounded-xl dan meningkatkan mb */}
-      <Card className="bg-white/10 border border-white/10 backdrop-blur-sm mb-6 rounded-xl shadow-lg">
-        <CardContent className="py-4">
-          <p className="text-sm text-black">Username anda</p>
-          <div className="flex items-center gap-2">
-            <p className="font-bold text-black truncate max-w-[180px]">
-              {profile?.username}
-            </p>
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={handleCopy}
-              className="text-black "
-              title="Salin UID"
-            >
-              <Copy size={16} />
-            </Button>
-            {copied && (
-              <span className="text-xs text-green-400">Tersalin!</span>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Total Mitra */}
+      <div className="bg-white p-6 rounded-xl shadow flex flex-col items-center text-center">
+        <div className="bg-blue-500 p-4 rounded-full mb-4">
+          <Users className="w-10 h-10 text-white" />
+        </div>
+        <h2 className="text-base font-semibold">Total Mitra</h2>
+        <p className="text-4xl font-bold mt-1">1</p>
+        <p className="text-sm text-gray-500 mt-1">
+          Jumlah mitra di jaringan Anda
+        </p>
+      </div>
 
+      {/* Statistik */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CardStat
+          judul="Mitra Aktivasi"
+          angka="1"
+          keterangan="Mitra dengan status aktif"
+        />
+        <CardStat
+          judul="Mitra RO"
+          angka="1"
+          keterangan="Mitra yang sudah melakukan RO"
+        />
+        <CardStat
+          judul="Omset Aktivasi"
+       angka={`Rp ${profile?.bonus?.toLocaleString("id-ID")}`}
 
+          keterangan="Total omset dari pendaftaran"
+        />
+        <CardStat
+          judul="Omset RO"
+          angka={`Rp ${profile?.bonusRO?.toLocaleString("id-ID")}`}
+          keterangan="Total omset dari RO tim"
+        />
+      </div>
+
+      {/* Ringkasan Bonus */}
+      <div>
+        <h2 className="text-xl font-bold mb-3">Ringkasan Bonus</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <CardStat
+            judul="Total Bonus"
+            angka="Rp 0"
+            keterangan="Akumulasi semua bonus"
+          />
+          <CardStat
+            judul="Bonus Dibayarkan"
+            angka="Rp 0"
+            keterangan="Total bonus yang sudah ditarik"
+          />
+          <CardStat
+            judul="Bonus Belum Dibayarkan"
+            angka="Rp 0"
+            keterangan="Total bonus yang siap ditarik"
+          />
+        </div>
+      </div>
+
+      {/* Rincian Bonus */}
+      <div>
+        <h2 className="text-xl font-bold mb-3">Rincian Total Bonus</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <CardStat
+            judul="Total Bonus Referal"
+            angka="Rp 0"
+            keterangan="Dari pendaftaran mitra baru"
+          />
+          <CardStat
+            judul="Total Bonus RO"
+            angka="Rp 0"
+            keterangan="Dari repeat order tim"
+          />
+          <CardStat
+            judul="Bonus Reward Utama"
+            angka="Rp 0"
+            keterangan="Pencapaian reward utama"
+          />
+          <CardStat
+            judul="Bonus Reward Peringkat"
+            angka="Rp 0"
+            keterangan="Pencapaian peringkat"
+          />
+        </div>
+      </div>
+
+      {/* Aktivitas Terbaru */}
+      <div>
+        <h2 className="text-xl font-bold mb-2">Aktivitas Terbaru</h2>
+        <div className="bg-white rounded-xl shadow p-4">
+          <p className="font-medium">
+            Mitra baru <span className="font-bold">Mitra Tiga Sukses</span>{" "}
+            telah bergabung di jaringan Anda
+          </p>
+          <p className="text-sm text-gray-500 mt-1">10/4/2025</p>
+        </div>
+      </div>
     </div>
   );
 }
 
+// Komponen kartu statistik
+function CardStat({
+  judul,
+  angka,
+  keterangan,
+}: {
+  judul: string;
+  angka: string;
+  keterangan: string;
+}) {
+  return (
+    <div className="bg-white p-5 rounded-xl shadow">
+      <p className="text-sm font-medium">{judul}</p>
+      <p className="text-2xl font-bold text-black mt-1">{angka}</p>
+      <p className="text-sm text-gray-500">{keterangan}</p>
+    </div>
+  );
+}
