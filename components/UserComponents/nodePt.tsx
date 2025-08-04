@@ -23,7 +23,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import GlobalLoading from "../loadingPage";
 
 interface UserData {
   id: string;
@@ -45,89 +44,133 @@ export default function NetworkPage() {
   const [tree, setTree] = useState<UserNode | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchUsername, setSearchUsername] = useState("");
-
 useEffect(() => {
-  const fetchData = async () => {
-    // Cek apakah ada cache yang masih valid (<10 menit)
-    const cachedTree = localStorage.getItem("cachedTree");
-    const cachedUsername = localStorage.getItem("cachedUsername");
-    const cachedTime = localStorage.getItem("cachedTime");
+  const fetchTree = async () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
 
-    if (cachedTree && cachedUsername && cachedTime) {
-      const age = Date.now() - parseInt(cachedTime);
-      if (age < 10 * 60 * 1000) {
-        setTree(JSON.parse(cachedTree));
-        setLoading(false);
-        return;
+    if (user) {
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        const username = userData.username;
+
+        const tree = await buildTree(username);
+        if (tree) {
+          tree.downlineCount = countTotalDownlines(tree); // <- hitung semua anak cucu
+          setTree(tree); // <- simpan ke state untuk ditampilkan
+        }
       }
     }
-
-    // Jika tidak ada cache, fetch dari Firestore
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (!user) return;
-
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
-      const userData = userSnap.data();
-      if (!userData) return;
-
-      const rootNode = await buildTree(userData.username);
-      setTree(rootNode);
-
-      // Simpan ke cache
-      localStorage.setItem("cachedTree", JSON.stringify(rootNode));
-      localStorage.setItem("cachedUsername", userData.username);
-      localStorage.setItem("cachedTime", Date.now().toString());
-
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
   };
 
-  fetchData();
+  fetchTree();
+}, []);
+
+useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+
+    const currentUid = user.uid;
+    const cached = localStorage.getItem("cachedTree");
+    const cachedUid = localStorage.getItem("cachedUid");
+    const cachedTime = localStorage.getItem("cachedTime");
+    const cachedUserCount = localStorage.getItem("cachedUserCount");
+
+    const usersSnap = await getDocs(collection(db, "users"));
+    const userCount = usersSnap.size.toString();
+
+    // ✅ Log untuk debug
+    console.log("Check cache:");
+    console.log({ cachedUid, currentUid, cachedUserCount, userCount, cachedTime });
+
+    const isCacheValid =
+      cached &&
+      cachedUid === currentUid &&
+      Date.now() - Number(cachedTime) < 1000 * 60 * 10 && // valid 10 menit
+      cachedUserCount === userCount;
+
+    if (isCacheValid) {
+      setTree(JSON.parse(cached));
+      setLoading(false);
+      console.log("✅ Menggunakan cache");
+      return;
+    }
+
+    // 🔄 Fetch dari Firestore jika tidak valid
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+    const userData = userSnap.data();
+    if (!userData) return;
+
+    const rootNode = await buildTree(userData.username);
+    if (rootNode) {
+      const sortedNode = sortChildrenByDate(rootNode);
+
+      hitungDownlineSemuaNode(sortedNode); // 💡 hitung jumlah downline
+
+      // Simpan ke cache
+      localStorage.setItem("cachedTree", JSON.stringify(sortedNode));
+      localStorage.setItem("cachedUid", currentUid);
+      localStorage.setItem("cachedTime", Date.now().toString());
+      localStorage.setItem("cachedUserCount", userCount);
+
+      setTree(sortedNode);
+    } else {
+      console.warn("⚠️ Root node tidak ditemukan");
+    }
+
+    setLoading(false);
+  });
+
+  return () => unsubscribe();
 }, []);
 
 
-const handleSearch = async () => {
-  setLoading(true);
-  const trimmed = searchUsername.trim();
-  let usernameToSearch = trimmed;
+const handleSearch = () => {
+  const trimmed = searchUsername.trim().toLowerCase();
 
   if (!trimmed) {
-    const currentUser = auth.currentUser;
-    if (currentUser && currentUser.displayName) {
-      usernameToSearch = currentUser.displayName;
+    const cached = localStorage.getItem("cachedTree");
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      setTree(parsed);
+    }
+    return;
+  }
+
+  const cached = localStorage.getItem("cachedTree");
+  if (cached) {
+    const parsed: UserNode = JSON.parse(cached);
+
+    // Fungsi pencarian sederhana: cari node dengan username cocok dan langsung tampilkan
+    const findNode = (node: UserNode): UserNode | null => {
+      if (node.username.toLowerCase().includes(trimmed)) {
+        return node; // tampilkan node ini apa adanya (dengan semua children-nya)
+      }
+
+      for (const child of node.children || []) {
+        const found = findNode(child);
+        if (found) return found;
+      }
+
+      return null;
+    };
+
+    const result = findNode(parsed);
+    if (result) {
+      setTree(result);
     } else {
-      console.error("Tidak bisa mendapatkan user login");
-      setLoading(false);
-      return;
+      setTree({ ...parsed, children: [] }); // Tidak ditemukan
     }
   }
-
-  try {
-    // Hapus cache lama
-    localStorage.removeItem("cachedTree");
-    localStorage.removeItem("cachedUsername");
-    localStorage.removeItem("cachedTime");
-
-    const rootNode = await buildTree(usernameToSearch);
-    setTree(rootNode);
-
-    // Simpan cache baru
-    localStorage.setItem("cachedTree", JSON.stringify(rootNode));
-    localStorage.setItem("cachedUsername", usernameToSearch);
-    localStorage.setItem("cachedTime", Date.now().toString());
-  } catch (error) {
-    console.error("Gagal membangun tree:", error);
-  }
-
-  setLoading(false);
 };
 
 
+
+
   return (
-    <div className="p-6 max-w-7xl mx-auto text-gray-800 min-h-screen mb-28">
+    <div className="p-12 max-w-7xl mx-auto text-gray-800 min-h-screen mb-28">
       <div className="mb-6 flex gap-2 items-center">
         <Input
           placeholder="Cari berdasarkan username"
@@ -140,41 +183,42 @@ const handleSearch = async () => {
         </Button>
       </div>
 
-    {loading ? (
-  <div className="flex justify-center items-center max-h-full mt-56">
-    <div className="">
-      <h1 className="text-red-500 flex justify-center mt-16 w-[120px] h-[120px] animate-spin-slow">
-        <img src="images/loading.png" alt="" className="rounded-full" />
-      </h1>
-    </div>
-  </div>
-) : tree ? (
-  <>
-    {flattenTreeSortedByDate(tree).map((user, index) => (
-      <div key={user.id} className="my-2">
-        <UserCard user={user} isRoot={index === 0} />
-      </div>
-    ))}
-  </>
-) : (
-  <div className="text-center text-gray-500">User tidak ditemukan.</div>
-)}
-
+      {loading ? (
+        <div className="p-10 text-xl text-center text-gray-600">
+          Loading jaringan...
+        </div>
+      ) : tree ? (
+        <UserTree node={tree} isRoot />
+      ) : (
+        <div className="text-center text-gray-500">User tidak ditemukan.</div>
+      )}
     </div>
   );
 }
 
-function UserTree({ node, isRoot }: { node: UserNode; isRoot?: boolean }) {
+ function UserTree({ node, isRoot }: { node: UserNode; isRoot?: boolean }) {
+  console.log("createdAt type:", typeof node.children[0]?.createdAt);
+  console.log("createdAt value:", node.children[0]?.createdAt);
+
   return (
     <div className="flex flex-col items-center">
       <UserCard user={node} isRoot={isRoot} />
+{node.children.length > 0 && (
+  <div
+    className={`mt-4 ${
+      isRoot
+        ? "flex overflow-x-auto space-x-4 px-4"
+        : "flex flex-col items-center gap-4"
+    }`}
+    style={isRoot ? { maxWidth: "100%" } : {}}
+  >
 
-  {node.children.length > 0 && (
-  <div className="mt-4 flex flex-col items-center gap-4">
     {[...node.children]
-      .sort((a, b) =>
-        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      )
+      .sort((a, b) => {
+        const timeA = new Date(a.createdAt).getTime() || 0;
+        const timeB = new Date(b.createdAt).getTime() || 0;
+        return timeA - timeB;
+      })
       .map((child) => (
         <UserTree key={child.id} node={child} />
       ))}
@@ -217,13 +261,13 @@ function UserCard({ user, isRoot }: { user: UserNode; isRoot?: boolean }) {
               value={user.roPribadi}
               small
             />
-            <StatusBadge active={user.roStatus} small />
             <InfoItem
               label="Jumlah Mitra"
               icon={<Users size={12} />}
-              value={user.downlineCount}
+            value={user.downlineCount}
               small
             />
+            <StatusBadge active={user.roStatus} small />
           </div>
           {!isRoot && (
             <Badge className="text-[10px] bg-red-600 text-white px-2 py-0.5">
@@ -288,6 +332,7 @@ function StatusBadge({
     </div>
   );
 }
+
 async function buildTree(
   username: string,
   depth = 0,
@@ -326,15 +371,17 @@ async function buildTree(
     where("sponsorUsername", "==", username)
   );
   const childSnapshot = await getDocs(childQuery);
+  console.log("ini data",childSnapshot.size)
 
   // Sort berdasarkan tanggal pembuatan (lama ke baru)
   const sortedChildren = childSnapshot.docs.sort((a, b) => {
     const aDate = a.data().createdAt?.toDate?.() ?? new Date(0);
     const bDate = b.data().createdAt?.toDate?.() ?? new Date(0);
-    return aDate.getTime() - bDate.getTime(); // ASC
+    return bDate.getTime() - aDate.getTime(); // ini DESC (baru di bawah)
   });
 
-  for (const doc of sortedChildren) {
+ const childNodes = await Promise.all(
+  sortedChildren.map(async (doc) => {
     const data = doc.data();
 
     const childNode: UserNode = {
@@ -350,14 +397,8 @@ async function buildTree(
       createdAt:
         typeof data.createdAt === "string"
           ? data.createdAt
-          : data.createdAt?.toDate().toISOString() ??
-            new Date().toISOString(),
+          : data.createdAt?.toDate().toISOString() ?? new Date().toISOString(),
     };
-
-    console.log("Anak ditemukan:", {
-      username: childNode.username,
-      createdAt: childNode.createdAt,
-    });
 
     const deeper = await buildTree(childNode.username, depth + 1, maxDepth);
     if (deeper) {
@@ -365,20 +406,58 @@ async function buildTree(
       childNode.downlineCount = deeper.downlineCount;
     }
 
-    node.children.push(childNode);
-    node.downlineCount += 1 + childNode.downlineCount;
-  }
+    return childNode;
+  })
+);
+
+node.children = childNodes;
+node.downlineCount = childNodes.reduce(
+  (acc, child) => acc + 1 + child.downlineCount,
+  0
+);
+
 
   return node;
 }
-function flattenTreeSortedByDate(node: UserNode): UserNode[] {
-  let result: UserNode[] = [node];
+
+function sortChildrenByDate(node: UserNode): UserNode {
+  console.log("🔍 sortChildrenByDate for:", node.username);
+console.log("🧒 Raw children:", node.children);
+
+  node.children = node.children
+    .map(sortChildrenByDate)
+   .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+  return node;
+}
+
+// function flattenTreeSortedByDate(node: UserNode): UserNode[] {
+//   let result: UserNode[] = [node];
+
+//   for (const child of node.children) {
+//     result = result.concat(flattenTreeSortedByDate(child));
+//   }
+
+//   return result.sort(
+//     (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+//   );
+// }
+function countTotalDownlines(node: UserNode): number {
+  let total = node.children.length;
+  for (const child of node.children) {
+    total += countTotalDownlines(child);
+  }
+  return total;
+}
+function hitungDownlineSemuaNode(node: UserNode): number {
+  let total = 0;
 
   for (const child of node.children) {
-    result = result.concat(flattenTreeSortedByDate(child));
+    const childTotal = hitungDownlineSemuaNode(child);
+    child.downlineCount = childTotal;
+    total += 1 + childTotal;
   }
 
-  return result.sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-  );
+  node.downlineCount = total; // <- inilah kunci: set count-nya di setiap node
+  return total;
 }

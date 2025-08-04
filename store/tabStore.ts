@@ -1,7 +1,7 @@
 // src/store/tabStore.ts
 import { create } from "zustand";
 
-type TabKey = "home" | "jaringan" | "finance" | "produk" | "settings" | "OrderPIN" | "StockPIN" | "aktivasiRO" | "TransferPin" | "Withdraw" |"TotalBonus" | "ManajemenBonus" | "RewardPeringkat" | "RewardUtama" | "DaftarReseller" | "InputReseller" | "RiwayatReseller" | "RiwayatRoPribadi" | "RewardReseller";
+type TabKey = "home" | "jaringan" | "finance" | "produk" | "settings" | "OrderPIN" | "StockPIN" | "aktivasiRO" | "TransferPin" | "Withdraw" |"TotalBonus" | "ManajemenBonus" | "RewardPeringkat" | "RewardUtama" | "DaftarReseller" | "InputReseller" | "RiwayatReseller" | "RiwayatRoPribadi" | "RewardReseller" | "Rincian" | "RiwayatRO";
 
 interface TabStore {
   activeTab: TabKey;

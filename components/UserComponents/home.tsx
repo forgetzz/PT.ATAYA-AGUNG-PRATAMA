@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Users } from "lucide-react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { collection, doc, getDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import {  db } from "@/lib/firebase";
 interface datas {
   name : string
@@ -13,14 +13,11 @@ interface datas {
   Pin_RO : string[]
 
 }
-interface datasDua {
-  mitra : string 
-  
-}
+
 
 export default function Home2() {
   const [profile, setProfile] = useState <datas>()
-  const [mitra, setMitra] = useState <datasDua>()
+ const [jumlahAnak, setJumlahAnak] = useState<number>(0);
 
  useEffect(() => {
 const unsub = onAuthStateChanged(getAuth(), async(user) => {
@@ -33,9 +30,7 @@ const unsub = onAuthStateChanged(getAuth(), async(user) => {
     }
     const dataDb = dbRef.data() as datas
     setProfile(dataDb)
-    const dataMitra = await collection(db,"users")
-    const eksekusi = dataMitra
-    console.log("MAAF AKUN ADA BELUM ADA")
+    console.log("Nama", dataDb.name)
   } catch {
     console.error("Kesalahan pada data anda")
   }
@@ -43,6 +38,34 @@ const unsub = onAuthStateChanged(getAuth(), async(user) => {
 })
 return () => unsub()
  },[])
+
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(getAuth(), async (user) => {
+      if (user) {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          const username = userData.username;
+
+          const q = query(
+            collection(db, "users"),
+            where("sponsorUsername", "==", username)
+          );
+          const querySnapshot = await getDocs(q);
+
+          // Simpan jumlah anak ke state
+          setJumlahAnak(querySnapshot.size); // .size langsung ambil jumlah dokumen
+        } else {
+          console.log("User data not found in Firestore");
+        }
+      }
+    });
+
+    return () => unsub();
+  }, []);
 
   return (
     <div className="p-6 space-y-6 text-gray-800">
@@ -60,7 +83,7 @@ return () => unsub()
           <Users className="w-10 h-10 text-white" />
         </div>
         <h2 className="text-base font-semibold">Total Mitra</h2>
-        <p className="text-4xl font-bold mt-1">1</p>
+        <p className="text-4xl font-bold mt-1">{jumlahAnak}</p>
         <p className="text-sm text-gray-500 mt-1">
           Jumlah mitra di jaringan Anda
         </p>

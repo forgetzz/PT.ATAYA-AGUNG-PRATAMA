@@ -23,7 +23,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import GlobalLoading from "../loadingPage";
+
+interface UserNode {
+  username: string;
+  name: string;
+  children: UserNode[];
+  // dan field lainnya...
+}
 
 interface UserData {
   id: string;
@@ -39,92 +45,122 @@ interface UserData {
 interface UserNode extends UserData {
   children: UserNode[];
   downlineCount: number;
+  downlineNode: number;
+  dataMitra : number;
+
 }
 
 export default function NetworkPage() {
   const [tree, setTree] = useState<UserNode | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchUsername, setSearchUsername] = useState("");
+  const [dataMitra, setDataMitra] = useState<Number>(0);
 
-useEffect(() => {
-  const fetchData = async () => {
-    // Cek apakah ada cache yang masih valid (<10 menit)
-    const cachedTree = localStorage.getItem("cachedTree");
-    const cachedUsername = localStorage.getItem("cachedUsername");
-    const cachedTime = localStorage.getItem("cachedTime");
+  useEffect(() => {
+    const fetchData = async () => {
+      // Cek apakah ada cache yang masih valid (<10 menit)
+      const cachedTree = localStorage.getItem("cachedTree");
+      const cachedUsername = localStorage.getItem("cachedUsername");
+      const cachedTime = localStorage.getItem("cachedTime");
 
-    if (cachedTree && cachedUsername && cachedTime) {
-      const age = Date.now() - parseInt(cachedTime);
-      if (age < 10 * 60 * 1000) {
-        setTree(JSON.parse(cachedTree));
-        setLoading(false);
-        return;
+      if (cachedTree && cachedUsername && cachedTime) {
+        const age = Date.now() - parseInt(cachedTime);
+        if (age < 10 * 60 * 100000) {
+          setTree(JSON.parse(cachedTree));
+          setLoading(false);
+          return;
+        }
       }
-    }
 
-    // Jika tidak ada cache, fetch dari Firestore
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (!user) return;
+      // Jika tidak ada cache, fetch dari Firestore
+      const unsubscribe = onAuthStateChanged(auth, async (user) => {
+        if (!user) return;
 
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
-      const userData = userSnap.data();
-      if (!userData) return;
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        const userData = userSnap.data();
+        if (!userData) return;
 
-      const rootNode = await buildTree(userData.username);
-      setTree(rootNode);
+        const rootNode = await buildTree(userData.username);
+        setTree(rootNode);
 
-      // Simpan ke cache
-      localStorage.setItem("cachedTree", JSON.stringify(rootNode));
-      localStorage.setItem("cachedUsername", userData.username);
-      localStorage.setItem("cachedTime", Date.now().toString());
+        // Simpan ke cache
+        localStorage.setItem("cachedTree", JSON.stringify(rootNode));
+        localStorage.setItem("cachedUsername", userData.username);
+        localStorage.setItem("cachedTime", Date.now().toString());
 
-      setLoading(false);
-    });
+        setLoading(false);
+      });
 
-    return () => unsubscribe();
-  };
+      return () => unsubscribe();
+    };
 
-  fetchData();
-}, []);
+    fetchData();
+  }, []);
+  const handleSearch = () => {
+    const trimmed = searchUsername.trim().toLowerCase();
 
-
-const handleSearch = async () => {
-  setLoading(true);
-  const trimmed = searchUsername.trim();
-  let usernameToSearch = trimmed;
-
-  if (!trimmed) {
-    const currentUser = auth.currentUser;
-    if (currentUser && currentUser.displayName) {
-      usernameToSearch = currentUser.displayName;
-    } else {
-      console.error("Tidak bisa mendapatkan user login");
-      setLoading(false);
+    if (!trimmed) {
+      const cached = localStorage.getItem("cachedTree");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        setTree(parsed);
+      }
       return;
     }
-  }
 
-  try {
-    // Hapus cache lama
-    localStorage.removeItem("cachedTree");
-    localStorage.removeItem("cachedUsername");
-    localStorage.removeItem("cachedTime");
+    const cached = localStorage.getItem("cachedTree");
+    if (cached) {
+      const parsed: UserNode = JSON.parse(cached);
 
-    const rootNode = await buildTree(usernameToSearch);
-    setTree(rootNode);
+      // Fungsi pencarian sederhana: cari node dengan username cocok dan langsung tampilkan
+      const findNode = (node: UserNode): UserNode | null => {
+        if (node.username.toLowerCase().includes(trimmed)) {
+          return node; // tampilkan node ini apa adanya (dengan semua children-nya)
+        }
 
-    // Simpan cache baru
-    localStorage.setItem("cachedTree", JSON.stringify(rootNode));
-    localStorage.setItem("cachedUsername", usernameToSearch);
-    localStorage.setItem("cachedTime", Date.now().toString());
-  } catch (error) {
-    console.error("Gagal membangun tree:", error);
-  }
+        for (const child of node.children || []) {
+          const found = findNode(child);
+          if (found) return found;
+        }
 
-  setLoading(false);
-};
+        return null;
+      };
 
+      const result = findNode(parsed);
+      if (result) {
+        setTree(result);
+      } else {
+        setTree({ ...parsed, children: [] }); // Tidak ditemukan
+      }
+    }
+  };
+  useEffect(() => {
+    const unsub = onAuthStateChanged(getAuth(), async (user) => {
+      if (user) {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          const username = userData.username;
+
+          const q = query(
+            collection(db, "users"),
+            where("sponsorUsername", "==", username)
+          );
+          const querySnapshot = await getDocs(q);
+
+          // Simpan jumlah anak ke state
+          setDataMitra(querySnapshot.size); // .size langsung ambil jumlah dokumen
+        } else {
+          console.log("User data not found in Firestore");
+        }
+      }
+    });
+
+    return () => unsub();
+  }, []);
 
   return (
     <div className="p-6 max-w-7xl mx-auto text-gray-800 min-h-screen mb-28">
@@ -140,52 +176,53 @@ const handleSearch = async () => {
         </Button>
       </div>
 
-    {loading ? (
-  <div className="flex justify-center items-center max-h-full mt-56">
-    <div className="">
-      <h1 className="text-red-500 flex justify-center mt-16 w-[120px] h-[120px] animate-spin-slow">
-        <img src="images/loading.png" alt="" className="rounded-full" />
-      </h1>
-    </div>
+      {loading ? (
+        <div className="flex justify-center items-center max-h-full mt-56">
+          <div className="">
+            <h1 className="text-red-500 flex justify-center mt-16 w-[120px] h-[120px] animate-spin-slow">
+              <img src="images/loading.png" alt="" className="rounded-full" />
+            </h1>
+          </div>
+        </div>
+      ) : tree ? (
+        <>
+       {flattenTreeSortedByDate(tree).map((user, index) => (
+  <div key={user.id} className="my-2">
+    <UserCard user={user} isRoot={index === 0} dataMitra={dataMitra} />
   </div>
-) : tree ? (
-  <>
-    {flattenTreeSortedByDate(tree).map((user, index) => (
-      <div key={user.id} className="my-2">
-        <UserCard user={user} isRoot={index === 0} />
-      </div>
-    ))}
-  </>
-) : (
-  <div className="text-center text-gray-500">User tidak ditemukan.</div>
-)}
+))}
 
+        </>
+      ) : (
+        <div className="text-center text-gray-500">User tidak ditemukan.</div>
+      )}
     </div>
   );
 }
 
-function UserTree({ node, isRoot }: { node: UserNode; isRoot?: boolean }) {
-  return (
-    <div className="flex flex-col items-center">
-      <UserCard user={node} isRoot={isRoot} />
+// function UserTree({ node, isRoot }: { node: UserNode; isRoot?: boolean }) {
+//   return (
+//     <div className="flex flex-col items-center">
+//       <UserCard user={node} isRoot={isRoot} />
 
-  {node.children.length > 0 && (
-  <div className="mt-4 flex flex-col items-center gap-4">
-    {[...node.children]
-      .sort((a, b) =>
-        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      )
-      .map((child) => (
-        <UserTree key={child.id} node={child} />
-      ))}
-  </div>
-)}
+//       {node.children.length > 0 && (
+//         <div className="mt-4 flex flex-col items-center gap-4">
+//           {[...node.children]
+//             .sort(
+//               (a, b) =>
+//                 new Date(a.createdAt).getTime() -
+//                 new Date(b.createdAt).getTime()
+//             )
+//             .map((child) => (
+//               <UserTree key={child.id} node={child} />
+//             ))}
+//         </div>
+//       )}
+//     </div>
+//   );
+// }
 
-    </div>
-  );
-}
-
-function UserCard({ user, isRoot }: { user: UserNode; isRoot?: boolean }) {
+function UserCard({ user, isRoot, dataMitra }: { user: UserNode; isRoot?: boolean, dataMitra: Number  }) {
   return (
     <div className="flex  justify-center items-center">
       <Card className="w-60 border-t-4 border-red-500 bg-white shadow-md hover:shadow-lg transition shrink-0">
@@ -217,13 +254,19 @@ function UserCard({ user, isRoot }: { user: UserNode; isRoot?: boolean }) {
               value={user.roPribadi}
               small
             />
-            <StatusBadge active={user.roStatus} small />
             <InfoItem
               label="Jumlah Mitra"
               icon={<Users size={12} />}
-              value={user.downlineCount}
+              value={Number(dataMitra)}
               small
             />
+            <InfoItem
+              label="Jumlah Downline"
+              icon={<Users size={12} />}
+              value={user.downlineNode}
+              small
+            />
+            <StatusBadge active={user.roStatus} small />
           </div>
           {!isRoot && (
             <Badge className="text-[10px] bg-red-600 text-white px-2 py-0.5">
@@ -288,20 +331,20 @@ function StatusBadge({
     </div>
   );
 }
-async function buildTree(
+export async function buildTree(
   username: string,
   depth = 0,
   maxDepth = 5
 ): Promise<UserNode | null> {
   if (depth >= maxDepth) return null;
 
-  // Ambil user sebagai root
   const q = query(collection(db, "users"), where("username", "==", username));
   const snapshot = await getDocs(q);
   if (snapshot.empty) return null;
 
   const rootDoc = snapshot.docs[0];
   const rootData = rootDoc.data();
+  console.log(rootData);
 
   const node: UserNode = {
     id: rootDoc.id,
@@ -313,6 +356,8 @@ async function buildTree(
     username: rootData.username || "",
     children: [],
     downlineCount: 0,
+    downlineNode: 0,
+    dataMitra:0,
     createdAt:
       typeof rootData.createdAt === "string"
         ? rootData.createdAt
@@ -320,18 +365,16 @@ async function buildTree(
           new Date().toISOString(),
   };
 
-  // Ambil anak-anak dari user ini (downline langsung)
   const childQuery = query(
     collection(db, "users"),
     where("sponsorUsername", "==", username)
   );
   const childSnapshot = await getDocs(childQuery);
 
-  // Sort berdasarkan tanggal pembuatan (lama ke baru)
   const sortedChildren = childSnapshot.docs.sort((a, b) => {
     const aDate = a.data().createdAt?.toDate?.() ?? new Date(0);
     const bDate = b.data().createdAt?.toDate?.() ?? new Date(0);
-    return aDate.getTime() - bDate.getTime(); // ASC
+    return aDate.getTime() - bDate.getTime();
   });
 
   for (const doc of sortedChildren) {
@@ -347,30 +390,32 @@ async function buildTree(
       username: data.username || "",
       children: [],
       downlineCount: 0,
+      downlineNode: 0,
+      dataMitra: 0,
       createdAt:
         typeof data.createdAt === "string"
           ? data.createdAt
-          : data.createdAt?.toDate().toISOString() ??
-            new Date().toISOString(),
+          : data.createdAt?.toDate().toISOString() ?? new Date().toISOString(),
     };
-
-    console.log("Anak ditemukan:", {
-      username: childNode.username,
-      createdAt: childNode.createdAt,
-    });
 
     const deeper = await buildTree(childNode.username, depth + 1, maxDepth);
     if (deeper) {
       childNode.children = deeper.children;
       childNode.downlineCount = deeper.downlineCount;
+      childNode.downlineNode = deeper.downlineNode;
     }
 
     node.children.push(childNode);
     node.downlineCount += 1 + childNode.downlineCount;
+
+    // Tambah 1 karena anak ini adalah 1 card visual, dan total dari bawah juga ditambahkan
+    node.downlineNode += 1 + childNode.downlineNode;
   }
+  
 
   return node;
 }
+
 function flattenTreeSortedByDate(node: UserNode): UserNode[] {
   let result: UserNode[] = [node];
 
@@ -381,4 +426,12 @@ function flattenTreeSortedByDate(node: UserNode): UserNode[] {
   return result.sort(
     (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
   );
+}
+// 🔢 Hitung total anak ke bawah dari 1 node
+function countAllDescendants(node: UserNode): number {
+  let count = node.children.length;
+  for (const child of node.children) {
+    count += countAllDescendants(child);
+  }
+  return count;
 }

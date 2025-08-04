@@ -52,6 +52,7 @@ import Daftarreseller from "@/components/UserComponents/DaftarReseller";
 import Rewardreseller from "@/components/UserComponents/RewardReseller.tsx";
 import Inputpenjualanreseller from "@/components/UserComponents/inputpenjualanreseller";
 import Home2 from "@/components/UserComponents/home"
+import Riwayatropribadi from "@/components/UserComponents/riwayatropribadi";
 
 interface dataProfile {
   name: string;
@@ -72,7 +73,7 @@ export default function BottomNav() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(getAuth(), async (user) => {
       if (!user) {
-        alert("Anda belum login");
+        // alert("Anda belum login");
         return;
       }
 
@@ -141,6 +142,8 @@ export default function BottomNav() {
               return <Rewardreseller/>
               case "InputReseller":
                 return <Inputpenjualanreseller/>
+                case "RiwayatRO" :
+                  return <Riwayatropribadi/>
 
       default:
         return null;
@@ -294,7 +297,7 @@ export default function BottomNav() {
                   <button
                     className="block text-sm px-2 py-1 hover:bg-white/10 rounded w-full text-left"
                     onClick={() => {
-                      alert("Bisa tambahkan lainnya juga");
+                     setActiveTab("RiwayatRO")
                     }}
                   >
                     Riwayat RO pribadi
@@ -430,7 +433,9 @@ export default function BottomNav() {
             </div>
             {/* Daftar Mitra baru */}
             <div>
-              <button className="w-full flex items-center justify-between text-left px-2 py-2 hover:bg-white/10 rounded">
+              <button className="w-full flex items-center justify-between text-left px-2 py-2 hover:bg-white/10 rounded" onClick={() => {
+                setActiveTab("produk")
+              }}>
                 <span className="flex items-center gap-2">
                   <UserRoundPlus size={18} />
                   <span>Daftra Mitra Baru</span>

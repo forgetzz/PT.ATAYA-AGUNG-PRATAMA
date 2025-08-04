@@ -11,7 +11,6 @@ interface FormData {
   email: string;
   password: string;
   sponsorUsername: string;
-  pin: string;
   whatsapp: string;
   bank: string;
   username: string;
@@ -34,7 +33,6 @@ export default function MitraRegisterPage() {
     email: "",
     password: "",
     sponsorUsername: "",
-    pin: "",
     whatsapp: "",
     bank: "",
     username: "",
@@ -81,87 +79,90 @@ export default function MitraRegisterPage() {
   //   return true;
   // };
 
-const handleRegister = async () => {
-  setLoading(true);
-  setError(null);
-  setSuccess(null);
+  const handleRegister = async () => {
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
 
-  try {
-    // 1️⃣ Kirim data ke backend untuk validasi
-    const validateResponse = await fetch("https://backend-asb-production.up.railway.app/validate-register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: form.name,
-        username: form.username,
-        email: form.email,
-        sponsorUsername: form.sponsorUsername,
-        bank: form.bank,
-        rekening: form.rekening,
-        whatsapp: form.whatsapp,
-        pin: form.pin,
-      }),
-    });
+    try {
+      // 1️⃣ Kirim data ke backend untuk validasi
+      const validateResponse = await fetch(
+        "https://backend-asb-production.up.railway.app/validate-register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: form.name,
+            username: form.username,
+            email: form.email,
+            sponsorUsername: form.sponsorUsername,
+            bank: form.bank,
+            rekening: form.rekening,
+            whatsapp: form.whatsapp,
+          }),
+        }
+      );
 
-    const validationData = await validateResponse.json();
+      const validationData = await validateResponse.json();
 
-    if (!validateResponse.ok) {
-      setError(validationData.message || "Validasi gagal.");
-      return;
+      if (!validateResponse.ok) {
+        setError(validationData.message || "Validasi gagal.");
+        return;
+      }
+
+      // 2️⃣ Setelah validasi sukses, buat akun Auth
+      const authInstance = getAuth();
+      const userCredential = await createUserWithEmailAndPassword(
+        authInstance,
+        form.email,
+        form.password
+      );
+
+      const user = userCredential.user;
+      const token = await user.getIdToken();
+
+      // 3️⃣ Kirim data ke backend untuk simpan ke Firestore
+      const saveResponse = await fetch(
+        "https://backend-asb-production.up.railway.app/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            uid: user.uid,
+            name: form.name,
+            username: form.username,
+            email: form.email,
+            sponsorUsername: form.sponsorUsername,
+            bank: form.bank,
+            rekening: form.rekening,
+            whatsapp: form.whatsapp,
+          }),
+        }
+      );
+
+      const saveData = await saveResponse.json();
+
+      if (!saveResponse.ok) {
+        setError(saveData.message || "Gagal menyimpan data.");
+        return;
+      }
+
+      setSuccess("Registrasi berhasil! Anda akan diarahkan ke halaman login.");
+      setTimeout(() => {
+        router.push("/login");
+      }, 2000);
+    } catch (error: unknown) {
+      console.error("❌ Error:", error);
+      setError("Terjadi kesalahan saat proses registrasi.");
+    } finally {
+      setLoading(false);
     }
-
-    // 2️⃣ Setelah validasi sukses, buat akun Auth
-    const authInstance = getAuth();
-    const userCredential = await createUserWithEmailAndPassword(
-      authInstance,
-      form.email,
-      form.password
-    );
-
-    const user = userCredential.user;
-    const token = await user.getIdToken();
-
-    // 3️⃣ Kirim data ke backend untuk simpan ke Firestore
-    const saveResponse = await fetch("https://backend-asb-production.up.railway.app/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        uid: user.uid,
-        name: form.name,
-        username: form.username,
-        email: form.email,
-        sponsorUsername: form.sponsorUsername,
-        bank: form.bank,
-        rekening: form.rekening,
-        whatsapp: form.whatsapp,
-        pin: form.pin,
-      }),
-    });
-
-    const saveData = await saveResponse.json();
-
-    if (!saveResponse.ok) {
-      setError(saveData.message || "Gagal menyimpan data.");
-      return;
-    }
-
-    setSuccess("Registrasi berhasil! Anda akan diarahkan ke halaman login.");
-    setTimeout(() => {
-      router.push("/login");
-    }, 2000);
-
-  } catch (error: unknown) {
-    console.error("❌ Error:", error);
-    setError("Terjadi kesalahan saat proses registrasi.");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-white to-gray-500">
@@ -337,25 +338,18 @@ const handleRegister = async () => {
         </div>
 
         {/* Input PIN */}
+        {/* Informasi PIN Aktivasi (otomatis) */}
         <div>
-          <label
-            htmlFor="pin"
-            className="block text-gray-700 text-sm font-semibold mb-2"
-          >
-            PIN Aktivasi
-          </label>
-          <input
-            id="pin"
-            className="w-full px-5 py-3 rounded-lg border-2 border-gray-300 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none transition-all duration-200 bg-white text-gray-900 placeholder-gray-400"
-            name="pin"
-            placeholder="PIN yang diberikan oleh sponsor Anda"
-            onChange={handleChange}
-            value={form.pin}
-            aria-label="PIN Sponsor"
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            Digunakan untuk verifikasi oleh sponsor Anda.
+          <div>
+             <p className="text-xs text-gray-500 mt-1">
+            Periksa pin aktivasi anda terlebih dahulu
           </p>
+          </div>
+          {error?.toLowerCase().includes("pin") && (
+            <p className="text-sm text-red-600 bg-red-100 p-3 rounded-md border border-red-300">
+              {error}
+            </p>
+          )}
         </div>
 
         {/* Pesan Status (Error/Success) */}

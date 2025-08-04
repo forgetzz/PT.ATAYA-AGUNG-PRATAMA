@@ -4,10 +4,11 @@ import React, { useState, useEffect, useRef } from "react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { Camera } from "lucide-react";
-
+import { signOut } from "firebase/auth";
 
 const SUPABASE_PROJECT_URL = "https://yredbkgnngcgzfagnwah.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlyZWRia2dubmdjZ3pmYWdud2FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA4MDU2NjEsImV4cCI6MjA2NjM4MTY2MX0.72ogqDzn1QPTqiYkhbb4PLe7PRpZcFmzqJ9IL6203Fs"; // sebaiknya jangan hardcode
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlyZWRia2dubmdjZ3pmYWdud2FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA4MDU2NjEsImV4cCI6MjA2NjM4MTY2MX0.72ogqDzn1QPTqiYkhbb4PLe7PRpZcFmzqJ9IL6203Fs"; // sebaiknya jangan hardcode
 const SUPABASE_BUCKET = "foto";
 
 interface UserData {
@@ -15,6 +16,7 @@ interface UserData {
   username: string;
   email: string;
   bank: string;
+  rekening: string;
   whatsapp: string;
   imageUrl: string;
 }
@@ -26,6 +28,7 @@ export default function ProfilePage() {
     username: "",
     email: "",
     bank: "",
+    rekening: "",
     whatsapp: "",
     imageUrl: "",
   });
@@ -78,9 +81,7 @@ export default function ProfilePage() {
   };
 
   // Handle upload image
-  const handleImageUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -94,11 +95,19 @@ export default function ProfilePage() {
     await setDoc(doc(db, "users", user.uid), updated, { merge: true });
     setUserData(updated);
   };
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      window.location.href = "/login";
+    } catch {
+      alert("gagal login");
+    }
+  };
 
   const triggerFileInput = () => fileInputRef.current?.click();
 
   return (
-    <div className="min-h-screen bg-gray-100 py-10 px-4 sm:px-8 lg:px-16">
+    <div className="min-h-screen bg-gray-100 py-10 px-4 sm:px-8 lg:px-16 mb-10">
       <div className="max-w-3xl mx-auto bg-white rounded-3xl shadow-xl p-8">
         <div className="text-center mb-8">
           <div className="relative w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-red-400 shadow-md">
@@ -150,8 +159,20 @@ export default function ProfilePage() {
             <span className="font-semibold">Bank:</span> {userData.bank}
           </div>
           <div>
+            <span className="font-semibold">No Rekening:</span>{" "}
+            {userData.rekening}
+          </div>
+          <div>
             <span className="font-semibold">Nomor WhatsApp:</span>{" "}
             {userData.whatsapp}
+          </div>
+          <div className="text-center mt-8">
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-xl shadow-md transition"
+            >
+              Logout
+            </button>
           </div>
         </div>
       </div>
