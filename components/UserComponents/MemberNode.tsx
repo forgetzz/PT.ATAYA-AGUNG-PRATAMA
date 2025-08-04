@@ -54,7 +54,7 @@ export default function NetworkPage() {
   const [tree, setTree] = useState<UserNode | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchUsername, setSearchUsername] = useState("");
-  const [dataMitra, setDataMitra] = useState<Number>(0);
+  const [dataMitra, setDataMitra] = useState<number>(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -222,7 +222,7 @@ export default function NetworkPage() {
 //   );
 // }
 
-function UserCard({ user, isRoot, dataMitra }: { user: UserNode; isRoot?: boolean, dataMitra: Number  }) {
+function UserCard({ user, isRoot, dataMitra }: { user: UserNode; isRoot?: boolean, dataMitra: number  }) {
   return (
     <div className="flex  justify-center items-center">
       <Card className="w-60 border-t-4 border-red-500 bg-white shadow-md hover:shadow-lg transition shrink-0">
