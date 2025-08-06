@@ -8,6 +8,7 @@ import { getDocs, query, where, collection } from "firebase/firestore";
 import { db } from "@/lib/firebase"; // pastikan ini benar
 import Link from "next/link";
 import Image from "next/image";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -15,7 +16,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-
+  const [lihatPassword, setLihatPassword] = useState(false); // toggle password
   const handleLogin = async () => {
     setLoading(true);
     setError("");
@@ -101,14 +102,23 @@ if (!username || !password) {
 
         <div>
           <label htmlFor="password" className="block text-gray-700 text-sm font-semibold mb-2">Password</label>
-          <input
-            id="password"
-            type="password"
-            className="w-full px-5 py-3 rounded-lg border-2 border-gray-300 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none bg-white"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Masukkan password Anda"
-          />
+        <div className="relative w-full">
+      <input
+        id="password"
+        type={lihatPassword ? "text" : "password"}
+        className="w-full px-5 py-3 rounded-lg border-2 border-gray-300 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none bg-white"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="Masukkan password Anda"
+      />
+  <button
+        type="button"
+        onClick={() => setLihatPassword(!lihatPassword)}
+        className="absolute right-4 top-5 mt-2 -translate-y-1/2 text-gray-500"
+      >
+        {lihatPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+      </button>
+    </div>
         </div>
 
         {error && (

@@ -23,13 +23,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
-interface UserNode {
-  username: string;
-  name: string;
-  children: UserNode[];
-  // dan field lainnya...
-}
+import GlobalLoading from "../loadingPage";
 
 interface UserData {
   id: string;
@@ -40,21 +34,18 @@ interface UserData {
   roTeam: number;
   username: string;
   createdAt: string; // <- ini wajib ada
+  imageProfile : string
 }
 
 interface UserNode extends UserData {
   children: UserNode[];
   downlineCount: number;
-  downlineNode: number;
-  dataMitra : number;
-
 }
 
 export default function NetworkPage() {
   const [tree, setTree] = useState<UserNode | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchUsername, setSearchUsername] = useState("");
-  const [dataMitra, setDataMitra] = useState<number>(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -63,14 +54,14 @@ export default function NetworkPage() {
       const cachedUsername = localStorage.getItem("cachedUsername");
       const cachedTime = localStorage.getItem("cachedTime");
 
-      if (cachedTree && cachedUsername && cachedTime) {
-        const age = Date.now() - parseInt(cachedTime);
-        if (age < 10 * 60 * 100000) {
-          setTree(JSON.parse(cachedTree));
-          setLoading(false);
-          return;
-        }
-      }
+      // if (cachedTree && cachedUsername && cachedTime) {
+      //   const age = Date.now() - parseInt(cachedTime);
+      //   if (age < 10 * 60 * 1000) {
+      //     setTree(JSON.parse(cachedTree));
+      //     setLoading(false);
+      //     return;
+      //   }
+      // }
 
       // Jika tidak ada cache, fetch dari Firestore
       const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -81,7 +72,7 @@ export default function NetworkPage() {
         const userData = userSnap.data();
         if (!userData) return;
 
-        const rootNode = await buildTree(userData.username);
+        const rootNode = await buildTreeFast(userData.username);
         setTree(rootNode);
 
         // Simpan ke cache
@@ -97,6 +88,7 @@ export default function NetworkPage() {
 
     fetchData();
   }, []);
+
   const handleSearch = () => {
     const trimmed = searchUsername.trim().toLowerCase();
 
@@ -135,32 +127,6 @@ export default function NetworkPage() {
       }
     }
   };
-  useEffect(() => {
-    const unsub = onAuthStateChanged(getAuth(), async (user) => {
-      if (user) {
-        const userRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userRef);
-
-        if (userSnap.exists()) {
-          const userData = userSnap.data();
-          const username = userData.username;
-
-          const q = query(
-            collection(db, "users"),
-            where("sponsorUsername", "==", username)
-          );
-          const querySnapshot = await getDocs(q);
-
-          // Simpan jumlah anak ke state
-          setDataMitra(querySnapshot.size); // .size langsung ambil jumlah dokumen
-        } else {
-          console.log("User data not found in Firestore");
-        }
-      }
-    });
-
-    return () => unsub();
-  }, []);
 
   return (
     <div className="p-6 max-w-7xl mx-auto text-gray-800 min-h-screen mb-28">
@@ -186,12 +152,11 @@ export default function NetworkPage() {
         </div>
       ) : tree ? (
         <>
-       {flattenTreeSortedByDate(tree).map((user, index) => (
-  <div key={user.id} className="my-2">
-    <UserCard user={user} isRoot={index === 0} dataMitra={dataMitra} />
-  </div>
-))}
-
+          {flattenTreeSortedByDate(tree).map((user, index) => (
+            <div key={user.id} className="my-2">
+              <UserCard user={user} isRoot={index === 0} />
+            </div>
+          ))}
         </>
       ) : (
         <div className="text-center text-gray-500">User tidak ditemukan.</div>
@@ -200,38 +165,40 @@ export default function NetworkPage() {
   );
 }
 
-// function UserTree({ node, isRoot }: { node: UserNode; isRoot?: boolean }) {
-//   return (
-//     <div className="flex flex-col items-center">
-//       <UserCard user={node} isRoot={isRoot} />
+function UserTree({ node, isRoot }: { node: UserNode; isRoot?: boolean }) {
+  return (
+    <div className="flex flex-col items-center">
+      <UserCard user={node} isRoot={isRoot} />
 
-//       {node.children.length > 0 && (
-//         <div className="mt-4 flex flex-col items-center gap-4">
-//           {[...node.children]
-//             .sort(
-//               (a, b) =>
-//                 new Date(a.createdAt).getTime() -
-//                 new Date(b.createdAt).getTime()
-//             )
-//             .map((child) => (
-//               <UserTree key={child.id} node={child} />
-//             ))}
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
+      {node.children.length > 0 && (
+        <div className="mt-4 flex flex-col items-center gap-4">
+          {[...node.children]
+            .sort(
+              (a, b) =>
+                new Date(a.createdAt).getTime() -
+                new Date(b.createdAt).getTime()
+            )
+            .map((child) => (
+              <UserTree key={child.id} node={child} />
+            ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
-function UserCard({ user, isRoot, dataMitra }: { user: UserNode; isRoot?: boolean, dataMitra: number  }) {
+function UserCard({ user, isRoot }: { user: UserNode; isRoot?: boolean }) {
   return (
     <div className="flex  justify-center items-center">
       <Card className="w-60 border-t-4 border-red-500 bg-white shadow-md hover:shadow-lg transition shrink-0">
         <CardContent className="p-4 text-center space-y-2">
           <div className="w-16 h-16 mx-auto relative">
             <img
-              src={`https://i.pravatar.cc/100?u=${user.email}`}
-              alt={user.name}
-              className="w-full h-full rounded-full border-2 border-white shadow-sm object-cover"
+              src={user?.imageProfile} // fallback jika kosong
+              alt="Avatar"
+              width={70} // ukuran lebih pas
+              height={70}
+              className="rounded-full border border-gray-300 shadow-sm object-cover"
             />
           </div>
 
@@ -255,15 +222,9 @@ function UserCard({ user, isRoot, dataMitra }: { user: UserNode; isRoot?: boolea
               small
             />
             <InfoItem
-              label="Jumlah Mitra"
-              icon={<Users size={12} />}
-              value={Number(dataMitra)}
-              small
-            />
-            <InfoItem
               label="Jumlah Downline"
               icon={<Users size={12} />}
-              value={user.downlineNode}
+              value={user.downlineCount}
               small
             />
             <StatusBadge active={user.roStatus} small />
@@ -331,56 +292,18 @@ function StatusBadge({
     </div>
   );
 }
-export async function buildTree(
-  username: string,
-  depth = 0,
-  maxDepth = 5
-): Promise<UserNode | null> {
-  if (depth >= maxDepth) return null;
+async function buildTreeFast(rootUsername: string): Promise<UserNode | null> {
+  const userSnap = await getDocs(collection(db, "users"));
+  if (userSnap.empty) return null;
 
-  const q = query(collection(db, "users"), where("username", "==", username));
-  const snapshot = await getDocs(q);
-  if (snapshot.empty) return null;
+  // Buat map username => UserData
+  const userMap = new Map<string, UserNode>();
+  const sponsorMap = new Map<string, UserNode[]>();
 
-  const rootDoc = snapshot.docs[0];
-  const rootData = rootDoc.data();
-  console.log(rootData);
-
-  const node: UserNode = {
-    id: rootDoc.id,
-    name: rootData.name || "",
-    email: rootData.email || "",
-    roStatus: rootData.roStatus || false,
-    roPribadi: rootData.roPribadi || 0,
-    roTeam: rootData.roTeam || 0,
-    username: rootData.username || "",
-    children: [],
-    downlineCount: 0,
-    downlineNode: 0,
-    dataMitra:0,
-    createdAt:
-      typeof rootData.createdAt === "string"
-        ? rootData.createdAt
-        : rootData.createdAt?.toDate().toISOString() ??
-          new Date().toISOString(),
-  };
-
-  const childQuery = query(
-    collection(db, "users"),
-    where("sponsorUsername", "==", username)
-  );
-  const childSnapshot = await getDocs(childQuery);
-
-  const sortedChildren = childSnapshot.docs.sort((a, b) => {
-    const aDate = a.data().createdAt?.toDate?.() ?? new Date(0);
-    const bDate = b.data().createdAt?.toDate?.() ?? new Date(0);
-    return aDate.getTime() - bDate.getTime();
-  });
-
-  for (const doc of sortedChildren) {
+  for (const doc of userSnap.docs) {
     const data = doc.data();
 
-    const childNode: UserNode = {
+    const node: UserNode = {
       id: doc.id,
       name: data.name || "",
       email: data.email || "",
@@ -390,30 +313,43 @@ export async function buildTree(
       username: data.username || "",
       children: [],
       downlineCount: 0,
-      downlineNode: 0,
-      dataMitra: 0,
+      imageProfile: data.imageProfile,
       createdAt:
         typeof data.createdAt === "string"
           ? data.createdAt
           : data.createdAt?.toDate().toISOString() ?? new Date().toISOString(),
     };
 
-    const deeper = await buildTree(childNode.username, depth + 1, maxDepth);
-    if (deeper) {
-      childNode.children = deeper.children;
-      childNode.downlineCount = deeper.downlineCount;
-      childNode.downlineNode = deeper.downlineNode;
+    userMap.set(node.username, node);
+
+    const sponsor = data.sponsorUsername;
+    if (sponsor) {
+      if (!sponsorMap.has(sponsor)) sponsorMap.set(sponsor, []);
+      sponsorMap.get(sponsor)!.push(node);
     }
-
-    node.children.push(childNode);
-    node.downlineCount += 1 + childNode.downlineCount;
-
-    // Tambah 1 karena anak ini adalah 1 card visual, dan total dari bawah juga ditambahkan
-    node.downlineNode += 1 + childNode.downlineNode;
   }
-  
 
-  return node;
+  // Susun tree
+  function attachChildren(node: UserNode): number {
+    const children = sponsorMap.get(node.username) || [];
+    node.children = children.sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
+
+    let totalDownline = 0;
+    for (const child of node.children) {
+      totalDownline += 1 + attachChildren(child);
+    }
+    node.downlineCount = totalDownline;
+    return totalDownline;
+  }
+
+  const root = userMap.get(rootUsername);
+  if (!root) return null;
+
+  attachChildren(root);
+  return root;
 }
 
 function flattenTreeSortedByDate(node: UserNode): UserNode[] {
@@ -426,12 +362,4 @@ function flattenTreeSortedByDate(node: UserNode): UserNode[] {
   return result.sort(
     (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
   );
-}
-// 🔢 Hitung total anak ke bawah dari 1 node
-function countAllDescendants(node: UserNode): number {
-  let count = node.children.length;
-  for (const child of node.children) {
-    count += countAllDescendants(child);
-  }
-  return count;
 }

@@ -23,31 +23,29 @@ export default function BonusDay() {
 
         if (snapRef.exists()) {
           const data = snapRef.data() as Datas;
+          const today = new Date().toLocaleDateString("id-ID"); // Lebih akurat untuk waktu lokal
 
-          const today = new Date().toISOString().split("T")[0];
           const lastUpdateDate = localStorage.getItem("bonusDate");
           const cachedBonus = localStorage.getItem("bonusValue");
           const cachedBonusRO = localStorage.getItem("bonusROValue");
+          console.log("Tanggal hari ini:", today);
+          console.log("Terakhir bonusDate di localStorage:", lastUpdateDate);
 
           // ✅ Gunakan cache jika masih berlaku hari ini
           if (lastUpdateDate === today && cachedBonus && cachedBonusRO) {
+            // ✅ Masih hari yang sama → pakai cache
             setBonusDay({
               bonus: parseFloat(cachedBonus),
               bonusRO: parseFloat(cachedBonusRO),
             });
-            setLoading(false);
-            return;
-          }
-
-          // ✅ Jika bonus ada dari Firestore, update localStorage
-          if (data.bonus && data.bonus > 0) {
-            setBonusDay(data);
-            localStorage.setItem("bonusValue", data.bonus.toString());
-            localStorage.setItem("bonusROValue", data.bonusRO.toString());
-
-            localStorage.setItem("bonusDate", today);
           } else {
-            setBonusDay(data); // tetap simpan data meski bonus kosong
+            // ❌ Hari sudah ganti → reset bonus ke 0
+            setBonusDay({ bonus: 0, bonusRO: 0 });
+
+            // Update localStorage agar tidak pakai data lama lagi
+            localStorage.setItem("bonusValue", "0");
+            localStorage.setItem("bonusROValue", "0");
+            localStorage.setItem("bonusDate", today);
           }
 
           setLoading(false);
@@ -82,8 +80,7 @@ export default function BonusDay() {
             <h3 className="text-xl font-semibold text-gray-50">Bonus RO</h3>
           </div>
           <div className="text-2xl text-blue-600 font-bold text-center mb-4">
-         {bonusDay ? formatRupiah(bonusDay.bonusRO) : "Rp0"}
-
+            {bonusDay ? formatRupiah(bonusDay.bonusRO) : "Rp0"}
           </div>
           <p className="text-sm text-gray-600 text-center p-8">
             Bonus dari pembelanjaan ulang anggota Anda.
@@ -98,7 +95,10 @@ export default function BonusDay() {
               Bonus Referal
             </h3>
           </div>
-          <div className="text-2xl text-red-600 font-bold text-center "> {bonusDay ? formatRupiah(bonusDay.bonus) : "Rp0"}</div>
+          <div className="text-2xl text-red-600 font-bold text-center ">
+            {" "}
+            {bonusDay ? formatRupiah(bonusDay.bonus) : "Rp0"}
+          </div>
           <p className="text-sm text-gray-600 text-center p-8">
             Bonus dari anggota baru yang Anda sponsori.
           </p>

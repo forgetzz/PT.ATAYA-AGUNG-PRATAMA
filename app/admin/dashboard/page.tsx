@@ -73,7 +73,11 @@ export default function AdminPage() {
     signOut(auth).then(() => router.replace("/admin/login"));
   };
 
-  const handleUpdateStatus = async (id: string) => {
+  const handleUpdateStatus = async (
+    id: string,
+    status: string,
+    tipe: string
+  ) => {
     const user = getAuth().currentUser;
     if (!user) return alert("Pengguna belum login.");
 
@@ -87,7 +91,7 @@ export default function AdminPage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ id, status: "Selesai" }),
+          body: JSON.stringify({ id, status, tipe }),
         }
       );
 
@@ -111,7 +115,7 @@ export default function AdminPage() {
           };
         });
         setOrders(data);
-        console.log(data)
+        console.log(data);
       },
       (error) => {
         console.error("Gagal listen data beli_pin:", error);
@@ -296,14 +300,26 @@ export default function AdminPage() {
                     </td>
                     <td>
                       {item.status === "Pending" ? (
-                        <button
-                          onClick={() => handleUpdateStatus(item.id)}
-                          className="px-4 py-2 mt-2 text-white font-semibold rounded-lg bg-gradient-to-r from-red-500 via-pink-500 to-red-600 shadow-md hover:brightness-110 hover:-translate-y-1 active:scale-95 transition-all duration-200 ease-in-out"
-                        >
-                          Approve
-                        </button>
+                        <div className="flex flex-col gap-2">
+                          <button
+                            onClick={() =>
+                              handleUpdateStatus(item.id, "Selesai", item.tipe)
+                            }
+                            className="px-4 py-2 text-white font-semibold rounded-lg bg-gradient-to-r from-green-500 to-green-600 shadow-md hover:brightness-110 hover:-translate-y-1 active:scale-95 transition-all duration-200 ease-in-out"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleUpdateStatus(item.id, "Ditolak", item.tipe)
+                            }
+                            className="px-4 py-2 text-white font-semibold rounded-lg bg-gradient-to-r from-red-500 to-red-600 shadow-md hover:brightness-110 hover:-translate-y-1 active:scale-95 transition-all duration-200 ease-in-out"
+                          >
+                            Tolak
+                          </button>
+                        </div>
                       ) : (
-                        <span className="text-gray-500">Selesai</span>
+                        <span className="text-gray-500">{item.status}</span>
                       )}
                     </td>
                   </tr>

@@ -1,66 +1,69 @@
 "use client";
-
-import React, { useEffect, useState } from "react";
-import { collection, query, where, getDocs, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-
-interface StockPin {
-  type: string;
-  status: string;
-  createdAt?: Timestamp;
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { collection, query, where, doc, getDoc } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
+interface Pin {
+  pins: { Pin: number; used: boolean; createdAt: string }[];
+  pinsRO: { Pin_RO: number; used: boolean; createdAt: string }[];
 }
-
 export default function StockPin() {
-  const [stock, setStock] = useState<Record<string, number>>({});
-  const [loading, setLoading] = useState(true);
-
+  const [datasPin, setDatasPin] = useState<Pin>();
   useEffect(() => {
-    const fetchStock = async () => {
-      try {
-        const types = ["aktivasi", "ro"];
-        const stockResult: Record<string, number> = {};
-
-        for (const type of types) {
-          const q = query(
-            collection(db, "pin"),
-            where("type", "==", type),
-            where("status", "==", "available")
-          );
-
-          const querySnapshot = await getDocs(q);
-          stockResult[type] = querySnapshot.size;
-        }
-
-        setStock(stockResult);
-      } catch (err) {
-        console.error("Gagal mengambil stok PIN:", err);
-      } finally {
-        setLoading(false);
+    const unsub = onAuthStateChanged(getAuth(), async (user) => {
+      if (!user) return;
+      const snapDb = doc(db, "users", user.uid);
+      const snapRef = await getDoc(snapDb);
+      if (snapRef.exists()) {
+        const data = snapRef.data() as Pin;
+        console.log("ini pin ro", data.pinsRO);
+        setDatasPin(data);
       }
-    };
-
-    fetchStock();
+    });
+    return () => unsub();
   }, []);
+  const allPins = [
+    ...(datasPin?.pins ?? []).map((pin) => ({ ...pin, type: "PIN" })),
+    ...(datasPin?.pinsRO ?? []).map((pin) => ({ ...pin, type: "RO" })),
+  ];
 
   return (
-    <div className="p-6 bg-gradient-to-br from-blue-50 to-white rounded-2xl shadow-lg border border-blue-100 max-w-md mx-auto">
-      <h2 className="text-xl font-bold text-blue-700 mb-4 text-center">
-        📦 Stok PIN Tersedia
-      </h2>
-      {loading ? (
-        <div className="text-center text-sm text-gray-500">Memuat data...</div>
-      ) : (
-        <ul className="space-y-3 text-gray-800 text-sm">
-          <li className="flex justify-between items-center bg-blue-100 px-4 py-2 rounded-lg">
-            <span>PIN Aktivasi</span>
-            <span className="font-bold text-blue-700">{stock["aktivasi"] || 0}</span>
-          </li>
-          <li className="flex justify-between items-center bg-green-100 px-4 py-2 rounded-lg">
-            <span>PIN RO</span>
-            <span className="font-bold text-green-700">{stock["ro"] || 0}</span>
-          </li>
-        </ul>
-      )}
+    <div>
+      {/* inin judul */}
+      <div className="p-5 space-y-4 ">
+        <p className="text-2xl font-semibold">Stok PIN Anda</p>
+        <h1>Ringkasan Jumlah PIN yang Anda Miliki</h1>
+      </div>
+      {/* ini card */}
+      <div className="rounded-lg shadow-md flex flex-wrap justify-center items-center gap-4 p-4 mb-36">
+        {/* ini div pi ro */}
+        <div className="w-full border-2 ">
+          <div className="bg-blue-500 text-white p-4">
+            <h1 className="text-lg font-semibold">Stok PIN Aktifasi</h1>
+          </div>
+          <div className="bg-white text-gray-800 p-4">
+            <h1 className="text-3xl font-bold">
+              <p>{datasPin?.pins.filter((pin) => !pin.used).length}</p>
+            </h1>
+
+            <h1 className="text-sm mt-1">PIN Tersedia</h1>
+          </div>
+        </div>
+        {/* ini pi div aktivasi */}
+        <div className="w-full">
+          <div className="bg-green-500 text-white p-4">
+            <h1 className="text-lg font-semibold">Stok PIN Aktifasi</h1>
+          </div>
+          <div className="bg-white text-gray-800 p-4">
+            <h1 className="text-3xl font-bold">
+              <p>{datasPin?.pinsRO.filter((pin) => !pin.used).length}</p>
+            </h1>
+            <h1 className="text-sm mt-1">PIN Tersedia</h1>
+          </div>
+        </div>
+      </div>
+
+    
     </div>
   );
 }

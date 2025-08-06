@@ -3,13 +3,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
-import { Camera } from "lucide-react";
+import { Camera, Pencil, Save, X } from "lucide-react";
 import { signOut } from "firebase/auth";
 
 const SUPABASE_PROJECT_URL = "https://yredbkgnngcgzfagnwah.supabase.co";
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlyZWRia2dubmdjZ3pmYWdud2FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA4MDU2NjEsImV4cCI6MjA2NjM4MTY2MX0.72ogqDzn1QPTqiYkhbb4PLe7PRpZcFmzqJ9IL6203Fs"; // sebaiknya jangan hardcode
-const SUPABASE_BUCKET = "foto";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlyZWRia2dubmdjZ3pmYWdud2FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA4MDU2NjEsImV4cCI6MjA2NjM4MTY2MX0.72ogqDzn1QPTqiYkhbb4PLe7PRpZcFmzqJ9IL6203Fs"; // Pindahkan ini ke env jika production
+const SUPABASE_BUCKET = "assets";
 
 interface UserData {
   name: string;
@@ -18,7 +17,7 @@ interface UserData {
   bank: string;
   rekening: string;
   whatsapp: string;
-  imageUrl: string;
+  imageProfile: string;
 }
 
 export default function ProfilePage() {
@@ -30,10 +29,11 @@ export default function ProfilePage() {
     bank: "",
     rekening: "",
     whatsapp: "",
-    imageUrl: "",
+    imageProfile: "",
   });
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState<UserData>(userData);
 
-  // Ambil data user dari Firestore
   useEffect(() => {
     const fetchUserData = async () => {
       const user = auth.currentUser;
@@ -41,19 +41,20 @@ export default function ProfilePage() {
 
       const userDoc = await getDoc(doc(db, "users", user.uid));
       if (userDoc.exists()) {
-        setUserData(userDoc.data() as UserData);
+        const data = userDoc.data() as UserData;
+        setUserData(data);
+        setFormData(data);
       }
     };
 
     fetchUserData();
   }, []);
 
-  // Upload ke Supabase (tanpa SDK)
   const uploadToSupabase = async (file: File): Promise<string | null> => {
     const user = auth.currentUser;
     if (!user) return null;
 
-    const fileName = `foto/${user.uid}/${Date.now()}-${file.name}`;
+    const fileName = `${user.uid}/${Date.now()}-${file.name}`;
     const uploadUrl = `${SUPABASE_PROJECT_URL}/storage/v1/object/${SUPABASE_BUCKET}/${fileName}`;
 
     try {
@@ -80,7 +81,6 @@ export default function ProfilePage() {
     }
   };
 
-  // Handle upload image
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -91,17 +91,32 @@ export default function ProfilePage() {
     const user = auth.currentUser;
     if (!user) return;
 
-    const updated = { ...userData, imageUrl: url };
+    const updated = { ...userData, imageProfile: url };
     await setDoc(doc(db, "users", user.uid), updated, { merge: true });
     setUserData(updated);
+    setFormData(updated);
   };
+
   const handleLogout = async () => {
     try {
       await signOut(auth);
       window.location.href = "/login";
     } catch {
-      alert("gagal login");
+      alert("gagal logout");
     }
+  };
+
+  const handleInputChange = (field: keyof UserData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSave = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    await setDoc(doc(db, "users", user.uid), formData, { merge: true });
+    setUserData(formData);
+    setIsEditing(false);
   };
 
   const triggerFileInput = () => fileInputRef.current?.click();
@@ -111,9 +126,9 @@ export default function ProfilePage() {
       <div className="max-w-3xl mx-auto bg-white rounded-3xl shadow-xl p-8">
         <div className="text-center mb-8">
           <div className="relative w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-red-400 shadow-md">
-            {userData.imageUrl ? (
+            {userData.imageProfile ? (
               <img
-                src={userData.imageUrl}
+                src={userData.imageProfile}
                 alt="Foto Profil"
                 className="w-full h-full object-cover"
               />
@@ -123,7 +138,6 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {/* Tombol Kamera */}
             <button
               onClick={triggerFileInput}
               className="absolute bottom-0 z-50 right-5 bg-white p-1.5 rounded-full shadow -mb-2 -mr-2 hover:bg-gray-100"
@@ -146,33 +160,71 @@ export default function ProfilePage() {
         </div>
 
         <div className="space-y-4 text-gray-700 text-left">
-          <div>
-            <span className="font-semibold">Nama:</span> {userData.name}
-          </div>
-          <div>
-            <span className="font-semibold">Username:</span> {userData.username}
-          </div>
-          <div>
-            <span className="font-semibold">Email:</span> {userData.email}
-          </div>
-          <div>
-            <span className="font-semibold">Bank:</span> {userData.bank}
-          </div>
-          <div>
-            <span className="font-semibold">No Rekening:</span>{" "}
-            {userData.rekening}
-          </div>
-          <div>
-            <span className="font-semibold">Nomor WhatsApp:</span>{" "}
-            {userData.whatsapp}
-          </div>
-          <div className="text-center mt-8">
-            <button
-              onClick={handleLogout}
-              className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-xl shadow-md transition"
-            >
-              Logout
-            </button>
+          {[
+            { label: "Nama", key: "name" },
+            { label: "Username", key: "username" },
+            { label: "Email", key: "email" },
+            { label: "Bank", key: "bank" },
+            { label: "No Rekening", key: "rekening" },
+            { label: "Nomor WhatsApp", key: "whatsapp" },
+          ].map((field) => (
+            <div key={field.key}>
+              <span className="font-semibold">{field.label}:</span>{" "}
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={formData[field.key as keyof UserData]}
+                  onChange={(e) =>
+                    handleInputChange(field.key as keyof UserData, e.target.value)
+                  }
+                  className="border border-gray-300 rounded px-2 py-1 ml-2"
+                />
+              ) : (
+                <span className="ml-1">
+                  {userData[field.key as keyof UserData]}
+                </span>
+              )}
+            </div>
+          ))}
+
+          <div className="text-center mt-8 flex justify-center gap-4">
+            {isEditing ? (
+              <>
+                <button
+                  onClick={handleSave}
+                  className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-xl shadow-md transition"
+                >
+                  <Save className="inline mr-2" size={18} />
+                  Simpan
+                </button>
+                <button
+                  onClick={() => {
+                    setFormData(userData);
+                    setIsEditing(false);
+                  }}
+                  className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-6 rounded-xl shadow-md transition"
+                >
+                  <X className="inline mr-2" size={18} />
+                  Batal
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-xl shadow-md transition"
+                >
+                  <Pencil className="inline mr-2" size={18} />
+                  Edit Profile
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-xl shadow-md transition"
+                >
+                  Logout
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>

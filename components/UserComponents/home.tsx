@@ -1,44 +1,53 @@
 import React, { useEffect, useState } from "react";
 import { Users } from "lucide-react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
-import {  db } from "@/lib/firebase";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
+import { db } from "@/lib/firebase";
 interface datas {
-  name : string
-  email : string
-  username : string
-  bonus : number 
-  bonusRO: number
-  Pin : string[]
-  Pin_RO : string[]
-
+  name: string;
+  email: string;
+  username: string;
+  bonus: number;
+  bonusRO: number;
+  Pin: string[];
+  Pin_RO: string[];
 }
-
-
+interface datasRef {
+  bonus : number
+  bonusRO : number
+}
 export default function Home2() {
-  const [profile, setProfile] = useState <datas>()
- const [jumlahAnak, setJumlahAnak] = useState<number>(0);
+  const [profile, setProfile] = useState<datas>();
+  const [jumlahAnak, setJumlahAnak] = useState<number>(0);
+  const [jumlahMitra, setJumlahMitra] = useState(0)
+  const [jumlahRo, setJumlahRo] = useState(0)
+  const [jumlahBonus, setJumlahBonus] = useState(0)
 
- useEffect(() => {
-const unsub = onAuthStateChanged(getAuth(), async(user) => {
-  if (!user) return alert("login dulu")
+  useEffect(() => {
+    const unsub = onAuthStateChanged(getAuth(), async (user) => {
+      if (!user) return alert("login dulu");
 
-  try{
-    const dbRef = await getDoc(doc(db, "users", user.uid))
-    if(!dbRef.exists()) {
-      return alert("data anda belum ada")
-    }
-    const dataDb = dbRef.data() as datas
-    setProfile(dataDb)
-    console.log("Nama", dataDb.name)
-  } catch {
-    console.error("Kesalahan pada data anda")
-  }
-
-})
-return () => unsub()
- },[])
-
+      try {
+        const dbRef = await getDoc(doc(db, "users", user.uid));
+        if (!dbRef.exists()) {
+          return alert("data anda belum ada");
+        }
+        const dataDb = dbRef.data() as datas;
+        setProfile(dataDb);
+        console.log("Nama", dataDb.name);
+      } catch {
+        console.error("Kesalahan pada data anda");
+      }
+    });
+    return () => unsub();
+  }, []);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(getAuth(), async (user) => {
@@ -55,9 +64,24 @@ return () => unsub()
             where("sponsorUsername", "==", username)
           );
           const querySnapshot = await getDocs(q);
-
+          const b = query(
+            collection(db, "users"),
+            where("sponsorUsername", "==", username),
+            where("roStatus", "==", true)
+          );
+          const querydata = await getDocs(b)
+          setJumlahMitra(querydata.size)
           // Simpan jumlah anak ke state
           setJumlahAnak(querySnapshot.size); // .size langsung ambil jumlah dokumen
+          setJumlahRo(querydata.size)
+
+          const dataBonusRef = doc(db,"users", user.uid )
+          const dataBonus = await getDoc(dataBonusRef)
+          if(dataBonus.exists()) {
+            const datas = dataBonus.data() as datasRef
+            const result = datas.bonus + datas.bonusRO
+            setJumlahBonus(result)
+          }
         } else {
           console.log("User data not found in Firestore");
         }
@@ -93,18 +117,17 @@ return () => unsub()
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <CardStat
           judul="Mitra Aktivasi"
-          angka="1"
+          angka={`${jumlahMitra}`}
           keterangan="Mitra dengan status aktif"
         />
         <CardStat
           judul="Mitra RO"
-          angka="1"
+          angka={`${jumlahRo}`}
           keterangan="Mitra yang sudah melakukan RO"
         />
         <CardStat
           judul="Omset Aktivasi"
-       angka={`Rp ${profile?.bonus?.toLocaleString("id-ID")}`}
-
+          angka={`Rp ${profile?.bonus?.toLocaleString("id-ID")}`}
           keterangan="Total omset dari pendaftaran"
         />
         <CardStat
@@ -114,27 +137,7 @@ return () => unsub()
         />
       </div>
 
-      {/* Ringkasan Bonus */}
-      <div>
-        <h2 className="text-xl font-bold mb-3">Ringkasan Bonus</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <CardStat
-            judul="Total Bonus"
-            angka="Rp 0"
-            keterangan="Akumulasi semua bonus"
-          />
-          <CardStat
-            judul="Bonus Dibayarkan"
-            angka="Rp 0"
-            keterangan="Total bonus yang sudah ditarik"
-          />
-          <CardStat
-            judul="Bonus Belum Dibayarkan"
-            angka="Rp 0"
-            keterangan="Total bonus yang siap ditarik"
-          />
-        </div>
-      </div>
+    
 
       {/* Rincian Bonus */}
       <div>

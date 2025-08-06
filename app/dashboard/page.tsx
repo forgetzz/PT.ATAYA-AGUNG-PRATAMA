@@ -51,13 +51,16 @@ import BonusRewardUtama from "@/components/UserComponents/bonusrewardutama";
 import Daftarreseller from "@/components/UserComponents/DaftarReseller";
 import Rewardreseller from "@/components/UserComponents/RewardReseller.tsx";
 import Inputpenjualanreseller from "@/components/UserComponents/inputpenjualanreseller";
-import Home2 from "@/components/UserComponents/home"
+import Home2 from "@/components/UserComponents/home";
 import Riwayatropribadi from "@/components/UserComponents/riwayatropribadi";
+import RiwayatPin from "@/components/UserComponents/RIwayatPIn";
+import RiwayatPenarikan from "@/components/UserComponents/RiwayatPenarikan";
 
 interface dataProfile {
   name: string;
   email: string;
   uid: string;
+  imageProfile: string
 }
 export default function BottomNav() {
   const { activeTab, setActiveTab } = useTabStore();
@@ -126,24 +129,28 @@ export default function BottomNav() {
         return <AktivasiRO />;
       case "TransferPin":
         return <TransferPin />;
-        case "Withdraw":
-        return <FinanceDashboard/>
-        case "TotalBonus":
-          return <BonusBelumDitarik/>
-          case "ManajemenBonus":
-            return <Manajemenbonus/>
-          case "RewardPeringkat":
-            return <Bonusrewardperingkat/>
-            case "RewardUtama" : 
-            return <BonusRewardUtama/>
-            case "DaftarReseller": 
-            return <Daftarreseller/>
-            case "RewardReseller" :
-              return <Rewardreseller/>
-              case "InputReseller":
-                return <Inputpenjualanreseller/>
-                case "RiwayatRO" :
-                  return <Riwayatropribadi/>
+      case "Withdraw":
+        return <FinanceDashboard />;
+      case "TotalBonus":
+        return <BonusBelumDitarik />;
+      case "ManajemenBonus":
+        return <Manajemenbonus />;
+      case "RewardPeringkat":
+        return <Bonusrewardperingkat />;
+      case "RewardUtama":
+        return <BonusRewardUtama />;
+      case "DaftarReseller":
+        return <Daftarreseller />;
+      case "RewardReseller":
+        return <Rewardreseller />;
+      case "InputReseller":
+        return <Inputpenjualanreseller />;
+      case "RiwayatRO":
+        return <Riwayatropribadi />;
+      case "RiwayatPin":
+        return <RiwayatPin />;
+        case "RIwayatWD": 
+        return <RiwayatPenarikan/>
 
       default:
         return null;
@@ -185,13 +192,14 @@ export default function BottomNav() {
           </div>
 
           {/* Avatar / Logo */}
-          <Image
-            src="/images/loading.png" // Pastikan file ada di /public/images/
-            alt="Avatar"
-            width={28} // Sama dengan w-7
-            height={28} // Sama dengan h-7
-            className="object-cover"
-          />
+         <img
+  src={profile?.imageProfile} // fallback jika kosong
+  alt="Avatar"
+  width={40} // ukuran lebih pas
+  height={40}
+  className="rounded-full border border-gray-300 shadow-sm object-cover"
+/>
+
         </div>
       </div>
       <main className="flex-1">{renderContent()}</main>
@@ -262,7 +270,7 @@ export default function BottomNav() {
                   <button
                     className="block text-sm px-2 py-1 hover:bg-white/10 rounded w-full text-left"
                     onClick={() => {
-                     setActiveTab("StockPIN")
+                      setActiveTab("StockPIN");
                     }}
                   >
                     Stock PIN
@@ -270,8 +278,7 @@ export default function BottomNav() {
                   <button
                     className="block text-sm px-2 py-1 hover:bg-white/10 rounded w-full text-left"
                     onClick={() => {
-                      setActiveTab("TransferPin")
- 
+                      setActiveTab("TransferPin");
                     }}
                   >
                     Transfer PIN
@@ -279,8 +286,7 @@ export default function BottomNav() {
                   <button
                     className="block text-sm px-2 py-1 hover:bg-white/10 rounded w-full text-left"
                     onClick={() => {
-                                            setActiveTab("aktivasiRO")
-   
+                      setActiveTab("aktivasiRO");
                     }}
                   >
                     Aktivasi PIN RO
@@ -288,8 +294,7 @@ export default function BottomNav() {
                   <button
                     className="block text-sm px-2 py-1 hover:bg-white/10 rounded w-full text-left"
                     onClick={() => {
-
-                      alert("Bisa tambahkan lainnya juga");
+                      setActiveTab("RiwayatPin");
                     }}
                   >
                     Riwayat PIN
@@ -297,7 +302,7 @@ export default function BottomNav() {
                   <button
                     className="block text-sm px-2 py-1 hover:bg-white/10 rounded w-full text-left"
                     onClick={() => {
-                     setActiveTab("RiwayatRO")
+                      setActiveTab("RiwayatRO");
                     }}
                   >
                     Riwayat RO pribadi
@@ -331,7 +336,7 @@ export default function BottomNav() {
                   <button
                     className="block text-sm px-2 py-1 hover:bg-white/10 rounded w-full text-left"
                     onClick={() => {
-                      setActiveTab("TotalBonus")
+                      setActiveTab("TotalBonus");
                       setOpen(false);
                     }}
                   >
@@ -340,7 +345,7 @@ export default function BottomNav() {
                   <button
                     className="block text-sm px-2 py-1 hover:bg-white/10 rounded w-full text-left"
                     onClick={() => {
-                      setActiveTab("Withdraw")
+                      setActiveTab("Withdraw");
                     }}
                   >
                     Formulir Penarikan
@@ -348,7 +353,7 @@ export default function BottomNav() {
                   <button
                     className="block text-sm px-2 py-1 hover:bg-white/10 rounded w-full text-left"
                     onClick={() => {
-                      alert("Bisa tambahkan lainnya juga");
+                      setActiveTab("RIwayatWD");
                     }}
                   >
                     Status Penarikan
@@ -433,9 +438,12 @@ export default function BottomNav() {
             </div>
             {/* Daftar Mitra baru */}
             <div>
-              <button className="w-full flex items-center justify-between text-left px-2 py-2 hover:bg-white/10 rounded" onClick={() => {
-                setActiveTab("produk")
-              }}>
+              <button
+                className="w-full flex items-center justify-between text-left px-2 py-2 hover:bg-white/10 rounded"
+                onClick={() => {
+                  setActiveTab("produk");
+                }}
+              >
                 <span className="flex items-center gap-2">
                   <UserRoundPlus size={18} />
                   <span>Daftra Mitra Baru</span>
@@ -467,7 +475,7 @@ export default function BottomNav() {
                   <button
                     className="block text-sm px-2 py-1 hover:bg-white/10 rounded w-full text-left"
                     onClick={() => {
-                      setActiveTab("DaftarReseller")
+                      setActiveTab("DaftarReseller");
                       setOpen(false);
                     }}
                   >
@@ -476,7 +484,7 @@ export default function BottomNav() {
                   <button
                     className="block text-sm px-2 py-1 hover:bg-white/10 rounded w-full text-left"
                     onClick={() => {
-                      setActiveTab("InputReseller")
+                      setActiveTab("InputReseller");
                     }}
                   >
                     Input Penjualan
@@ -484,7 +492,7 @@ export default function BottomNav() {
                   <button
                     className="block text-sm px-2 py-1 hover:bg-white/10 rounded w-full text-left"
                     onClick={() => {
-                      setActiveTab("RewardReseller")
+                      setActiveTab("RewardReseller");
                     }}
                   >
                     Reward Reseller

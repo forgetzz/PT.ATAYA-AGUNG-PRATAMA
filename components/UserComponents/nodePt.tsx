@@ -55,7 +55,7 @@ useEffect(() => {
         const userData = userDoc.data();
         const username = userData.username;
 
-        const tree = await buildTree(username);
+        const tree = await buildTreeFast(username);
         if (tree) {
           tree.downlineCount = countTotalDownlines(tree); // <- hitung semua anak cucu
           setTree(tree); // <- simpan ke state untuk ditampilkan
@@ -103,7 +103,7 @@ useEffect(() => {
     const userData = userSnap.data();
     if (!userData) return;
 
-    const rootNode = await buildTree(userData.username);
+    const rootNode = await buildTreeFast(userData.username);
     if (rootNode) {
       const sortedNode = sortChildrenByDate(rootNode);
 
@@ -332,59 +332,18 @@ function StatusBadge({
     </div>
   );
 }
+async function buildTreeFast(rootUsername: string): Promise<UserNode | null> {
+  const userSnap = await getDocs(collection(db, "users"));
+  if (userSnap.empty) return null;
 
-async function buildTree(
-  username: string,
-  depth = 0,
-  maxDepth = 5
-): Promise<UserNode | null> {
-  if (depth >= maxDepth) return null;
+  // Buat map username => UserData
+  const userMap = new Map<string, UserNode>();
+  const sponsorMap = new Map<string, UserNode[]>();
 
-  // Ambil user sebagai root
-  const q = query(collection(db, "users"), where("username", "==", username));
-  const snapshot = await getDocs(q);
-  if (snapshot.empty) return null;
-
-  const rootDoc = snapshot.docs[0];
-  const rootData = rootDoc.data();
-
-  const node: UserNode = {
-    id: rootDoc.id,
-    name: rootData.name || "",
-    email: rootData.email || "",
-    roStatus: rootData.roStatus || false,
-    roPribadi: rootData.roPribadi || 0,
-    roTeam: rootData.roTeam || 0,
-    username: rootData.username || "",
-    children: [],
-    downlineCount: 0,
-    createdAt:
-      typeof rootData.createdAt === "string"
-        ? rootData.createdAt
-        : rootData.createdAt?.toDate().toISOString() ??
-          new Date().toISOString(),
-  };
-
-  // Ambil anak-anak dari user ini (downline langsung)
-  const childQuery = query(
-    collection(db, "users"),
-    where("sponsorUsername", "==", username)
-  );
-  const childSnapshot = await getDocs(childQuery);
-  console.log("ini data",childSnapshot.size)
-
-  // Sort berdasarkan tanggal pembuatan (lama ke baru)
-  const sortedChildren = childSnapshot.docs.sort((a, b) => {
-    const aDate = a.data().createdAt?.toDate?.() ?? new Date(0);
-    const bDate = b.data().createdAt?.toDate?.() ?? new Date(0);
-    return bDate.getTime() - aDate.getTime(); // ini DESC (baru di bawah)
-  });
-
- const childNodes = await Promise.all(
-  sortedChildren.map(async (doc) => {
+  for (const doc of userSnap.docs) {
     const data = doc.data();
 
-    const childNode: UserNode = {
+    const node: UserNode = {
       id: doc.id,
       name: data.name || "",
       email: data.email || "",
@@ -400,24 +359,35 @@ async function buildTree(
           : data.createdAt?.toDate().toISOString() ?? new Date().toISOString(),
     };
 
-    const deeper = await buildTree(childNode.username, depth + 1, maxDepth);
-    if (deeper) {
-      childNode.children = deeper.children;
-      childNode.downlineCount = deeper.downlineCount;
+    userMap.set(node.username, node);
+
+    const sponsor = data.sponsorUsername;
+    if (sponsor) {
+      if (!sponsorMap.has(sponsor)) sponsorMap.set(sponsor, []);
+      sponsorMap.get(sponsor)!.push(node);
     }
+  }
 
-    return childNode;
-  })
-);
+  // Susun tree
+  function attachChildren(node: UserNode): number {
+    const children = sponsorMap.get(node.username) || [];
+    node.children = children.sort((a, b) =>
+      new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
 
-node.children = childNodes;
-node.downlineCount = childNodes.reduce(
-  (acc, child) => acc + 1 + child.downlineCount,
-  0
-);
+    let totalDownline = 0;
+    for (const child of node.children) {
+      totalDownline += 1 + attachChildren(child);
+    }
+    node.downlineCount = totalDownline;
+    return totalDownline;
+  }
 
+  const root = userMap.get(rootUsername);
+  if (!root) return null;
 
-  return node;
+  attachChildren(root);
+  return root;
 }
 
 function sortChildrenByDate(node: UserNode): UserNode {

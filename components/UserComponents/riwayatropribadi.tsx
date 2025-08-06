@@ -1,28 +1,87 @@
-import React from 'react'
+import React, { useEffect, useState } from "react";
+import { getAuth } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
-export default function Riwayatropribadi() {
+interface RoEntry {
+  PinRO: string;
+  waktuPakai: string; // Firestore Timestamp
+}
+
+export default function RiwayatROPribadi() {
+  const [roList, setRoList] = useState<RoEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRO = async () => {
+      const user = getAuth().currentUser;
+      if (!user) return;
+
+      const userDocRef = doc(db, "RiwayatRO", user.uid);
+      const userSnap = await getDoc(userDocRef);
+
+      if (userSnap.exists()) {
+        const data = userSnap.data();
+        const riwayat: RoEntry[] = data.riwayat || [];
+        setRoList(riwayat);
+      }
+
+      setLoading(false);
+    };
+
+    fetchRO();
+  }, []);
+
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md max-w-md mx-auto mt-8">
-  {/* Judul dan Deskripsi */}
-  <div>
-    <div className="flex items-center space-x-2">
-      <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A8 8 0 1112 20v1m0-1a8 8 0 01-6.879-3.804z" />
-      </svg>
-      <h1 className="text-lg font-semibold text-gray-800">Riwayat RO Pribadi</h1>
+    <div className="bg-white p-6 rounded-lg shadow-md max-w-3xl mx-auto mt-8">
+      <h1 className="text-lg font-semibold text-gray-800 mb-2">
+        Riwayat RO Pribadi
+      </h1>
+      <p className="text-sm text-gray-600 mb-4">
+        Daftar aktivasi Repeat Order Anda akan tampil di bawah ini.
+      </p>
+
+      {loading ? (
+        <p>Loading...</p>
+      ) : roList.length === 0 ? (
+        <div className="border border-dashed border-gray-300 rounded-lg p-6 text-center text-gray-500">
+          Tidak ada riwayat Repeat Order.
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="min-w-full table-auto border border-gray-300 text-sm">
+            <thead className="bg-gray-100 text-left">
+              <tr>
+                <th className="px-4 py-2 border-b">No</th>
+                <th className="px-4 py-2 border-b">PIN RO</th>
+                <th className="px-4 py-2 border-b">Tanggal Aktivasi</th>
+                <th className="px-4 py-2 border-b">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {roList.map((ro, index) => (
+                <tr key={index} className="hover:bg-gray-50">
+                  <td className="px-4 py-2 border-b">{index + 1}</td>
+                  <td className="px-4 py-2 border-b">{ro.PinRO}</td>
+                  <td className="px-4 py-2 border-b">
+                    {ro.waktuPakai
+                      ? new Date(ro.waktuPakai).toLocaleDateString("id-ID", {
+                          weekday: "long",
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })
+                      : "Tidak tersedia"}
+                  </td>
+                  <td className="px-4 py-2 border-b text-green-600 font-medium">
+                    Aktif
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
-    <p className="text-sm text-gray-600 mt-1">Daftar aktivasi Repeat Order yang telah Anda lakukan.</p>
-  </div>
-
-  {/* Kotak Tidak Ada Riwayat */}
-  <div className="border border-dashed border-gray-300 rounded-lg p-6 mt-6 text-center text-gray-500">
-    <svg className="w-10 h-10 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-    <p className="font-medium text-gray-700">Tidak ada riwayat</p>
-    <p className="text-sm text-gray-500">Anda belum pernah melakukan RO pribadi.</p>
-  </div>
-</div>
-
-  )
+  );
 }

@@ -6,6 +6,7 @@ import { db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import Link from "next/link"; // Import Link untuk navigasi ke halaman login
 import Image from "next/image";
+import { Eye, EyeOff } from "lucide-react";
 interface FormData {
   name: string;
   email: string;
@@ -28,6 +29,7 @@ export default function MitraRegisterPage() {
   const [loading, setLoading] = useState(false); // State untuk loading
   const [error, setError] = useState<string | null>(null); // State untuk pesan error
   const [success, setSuccess] = useState<string | null>(null); // State untuk pesan sukses
+    const [lihatPassword, setLihatPassword] = useState(false); // toggle password
   const [form, setForm] = useState<FormData>({
     name: "",
     email: "",
@@ -259,24 +261,33 @@ export default function MitraRegisterPage() {
         </div>
 
         {/* Input Password */}
-        <div>
+        <div className="relative w-full "> 
           <label
             htmlFor="password"
             className="block text-gray-700 text-sm font-semibold mb-2"
           >
             Password
           </label>
+          <div>
           <input
             id="password"
             className="w-full px-5 py-3 rounded-lg border-2 border-gray-300 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none transition-all duration-200 bg-white text-gray-900 placeholder-gray-400"
             name="password"
-            type="password"
+            type={lihatPassword ? "text" : "password"}
             placeholder="Minimal 6 karakter"
             onChange={handleChange}
             value={form.password}
             aria-label="Password"
           />
         </div>
+    <button
+        type="button"
+        onClick={() => setLihatPassword(!lihatPassword)}
+        className="absolute right-4 top-11 mt-2 -translate-y-1/2 text-gray-500"
+      >
+        {lihatPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+      </button>
+      </div>
         {/* input bank */}
         <div>
           <label className="block mb-1 font-medium">Bank</label>

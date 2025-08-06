@@ -1,12 +1,17 @@
 import { getAuth } from "firebase/auth";
 import React, { useState } from "react";
 import { KeyRound, Loader2 } from "lucide-react";
-
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+interface username2 {
+  username: string;
+}
 export default function AktivasiRO() {
   const [pinCode, setPinCode] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [username, setUsername] = useState<username2>();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -23,15 +28,24 @@ export default function AktivasiRO() {
       }
 
       const token = await user.getIdToken();
-
-      const response = await fetch("https://backend-asb-production.up.railway.app/aktivasi-ro", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ pinCode }),
-      });
+      const dbRef = await getDoc(doc(db, "users", user.uid));
+      if (!dbRef.exists()) {
+  return alert("erorr")
+      }
+        const snap = dbRef.data() as username2;
+      const response = await fetch(
+        "https://backend-asb-production.up.railway.app/aktivasi-ro",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            username: snap.username
+          }),
+        }
+      );
 
       const data = await response.json();
 
@@ -47,28 +61,26 @@ export default function AktivasiRO() {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-20 p-8 bg-white rounded-3xl shadow-2xl border border-red-300 relative overflow-hidden">
+    <div className="max-w-md mx-auto mt-20 p-8 bg-white rounded-3xl shadow-2xl border border-red-300 relative overflow-hidden mb-12">
       <div className="absolute inset-0 opacity-5 bg-[url('/bg-pattern.svg')] bg-cover bg-center pointer-events-none" />
 
       <div className="text-center mb-8">
         <div className="flex justify-center mb-4">
           <KeyRound className="h-12 w-12 text-red-600" />
         </div>
-        <h1 className="text-3xl font-extrabold text-red-700 mb-2">Aktivasi PIN RO</h1>
+        <h1 className="text-3xl font-extrabold text-red-700 mb-2">
+          Aktivasi PIN RO
+        </h1>
         <p className="text-sm text-gray-600">
-          Silakan masukkan PIN RO Anda untuk mengaktifkan fitur RO dan menikmati bonus jaringan.
+          Silakan masukkan PIN RO Anda untuk mengaktifkan fitur RO dan menikmati
+          bonus jaringan.
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        <input
-          type="text"
-          placeholder="Contoh: 524547"
-          value={pinCode}
-          onChange={(e) => setPinCode(e.target.value)}
-          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 text-gray-800 bg-gray-50 shadow-inner"
-          required
-        />
+        <p className="font-thin text-center">
+          Periksa Pin RO anda terlebih dahulu!
+        </p>
 
         <button
           type="submit"
