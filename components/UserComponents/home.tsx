@@ -145,12 +145,12 @@ export default function Home2() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <CardStat
             judul="Total Bonus Referal"
-            angka="Rp 0"
+            angka={`${profile?.bonus}`}
             keterangan="Dari pendaftaran mitra baru"
           />
           <CardStat
             judul="Total Bonus RO"
-            angka="Rp 0"
+            angka={`${profile?.bonusRO}`}
             keterangan="Dari repeat order tim"
           />
           <CardStat
@@ -166,17 +166,7 @@ export default function Home2() {
         </div>
       </div>
 
-      {/* Aktivitas Terbaru */}
-      <div>
-        <h2 className="text-xl font-bold mb-2">Aktivitas Terbaru</h2>
-        <div className="bg-white rounded-xl shadow p-4">
-          <p className="font-medium">
-            Mitra baru <span className="font-bold">Mitra Tiga Sukses</span>{" "}
-            telah bergabung di jaringan Anda
-          </p>
-          <p className="text-sm text-gray-500 mt-1">10/4/2025</p>
-        </div>
-      </div>
+
     </div>
   );
 }

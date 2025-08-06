@@ -35,9 +35,9 @@ const [activeTab, setActiveTab] = useState("")
           const data = doc.data();
           if (data.uid === auth.currentUser?.uid) {
             setBonus({
-              referal: data.bonusReferal || 0,
+              referal: data.bonus || 0,
               ro: data.bonusRO || 0,
-              utama: data.bonusUtama || 0,
+              utama: data.rewardUtama || 0,
               peringkat: data.bonusPeringkat || 0,
             });
           }
@@ -112,7 +112,7 @@ return (
         <div className={cardClass}>
           <div>
             <p className="text-sm text-gray-500 font-medium">Total Bonus Reward Peringkat</p>
-            <p className="text-2xl font-bold">Rp {bonus.peringkat.toLocaleString()}</p>
+            <p className="text-2xl font-bold">{bonus.peringkat.toLocaleString()}</p>
             <p className="text-xs text-gray-500 mt-1">Bonus kenaikan peringkat Anda</p>
           </div>
           <TrendingUp size={32} className="text-green-500" />
