@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { auth, db } from "@/lib/firebase";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged , User} from "firebase/auth";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 const PRODUK_LIST = [
@@ -33,7 +33,7 @@ interface ResellerDoc {
 
 
 export default function Inputpenjualanreseller() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [resellers, setResellers] = useState<Reseller[]>([]);
   const [selectedReseller, setSelectedReseller] = useState("");
   const [selectedProduk, setSelectedProduk] = useState("");
@@ -73,8 +73,9 @@ const handleSimpan = async () => {
     alert("Lengkapi semua data terlebih dahulu!");
     return;
   }
+if (!user) return alert("User belum login!");
+const resellerRef = doc(db, "Reseller", user.uid);
 
-  const resellerRef = doc(db, "Reseller", user.uid);
   const resellerSnap = await getDoc(resellerRef);
 
   if (!resellerSnap.exists()) {

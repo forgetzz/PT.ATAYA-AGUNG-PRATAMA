@@ -9,14 +9,29 @@ import {
   setDoc,
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
+interface ResellerData {
+  nama: string;
+  whatsapp: string;
+  alamat: string;
+  produk: number;
+  poin: number;
+  hargaPendaftaran: number;
+  createdAt: Date;
+}
+
+interface UserData {
+  uid: string;
+  email: string | null;
+  username: string;
+}
 
 export default function Daftarreseller() {
   const [nama, setNama] = useState("");
   const [wa, setWa] = useState("");
   const [alamat, setAlamat] = useState("");
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [daftarReseller, setDaftarReseller] = useState<any[]>([]);
+  const [daftarReseller, setDaftarReseller] = useState<ResellerData[]>([]);
 
   // Cek login dan ambil data user
   useEffect(() => {
