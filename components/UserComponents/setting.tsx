@@ -12,7 +12,7 @@ const SUPABASE_BUCKET = "assets";
 
 interface UserData {
   name: string;
-  username: string;
+  sponsorUsername: string;
   email: string;
   bank: string;
   rekening: string;
@@ -24,7 +24,7 @@ export default function ProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [userData, setUserData] = useState<UserData>({
     name: "",
-    username: "",
+    sponsorUsername: "",
     email: "",
     bank: "",
     rekening: "",
@@ -162,8 +162,8 @@ export default function ProfilePage() {
         <div className="space-y-4 text-gray-700 text-left">
           {[
             { label: "Nama", key: "name" },
-            { label: "Username", key: "username" },
-            { label: "Email", key: "email" },
+            { label: "Referensi", key: "sponsorUsername" },
+
             { label: "Bank", key: "bank" },
             { label: "No Rekening", key: "rekening" },
             { label: "Nomor WhatsApp", key: "whatsapp" },

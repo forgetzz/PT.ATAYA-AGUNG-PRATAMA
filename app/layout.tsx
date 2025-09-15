@@ -13,10 +13,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Asbfamily",
-  description: "sehat bersama",
+  title: "Ataya Agung Pratama",
+  description: "Service ac terbaik di indonesia",
     icons: {
-    icon: "/images/loading.png", // atau /favicon.png
+    icon: "/images/aa.png", // atau /favicon.png
   },
 };
 
@@ -26,11 +26,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html>
   <head>
         {/* Favicon manual */}
-        <link rel="icon" href="/images/loading.png" type="image/png" />
-        <title>Asbfamily</title>
+ 
       </head>
 
       <body className="bg-base-100 text-base-content min-h-screen">

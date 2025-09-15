@@ -2,6 +2,7 @@
 import { db } from "@/lib/firebase";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { collection, query, where, doc, getDoc } from "firebase/firestore";
+import { Heading1 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 interface Pin {
   pins: { Pin: number; used: boolean; createdAt: string }[];
@@ -18,6 +19,8 @@ export default function StockPin() {
         const data = snapRef.data() as Pin;
         console.log("ini pin ro", data.pinsRO);
         setDatasPin(data);
+      }
+      if (!snapRef.exists()) {
       }
     });
     return () => unsub();
@@ -43,10 +46,13 @@ export default function StockPin() {
           </div>
           <div className="bg-white text-gray-800 p-4">
             <h1 className="text-3xl font-bold">
-              <p>{datasPin?.pins.filter((pin) => !pin.used).length}</p>
+              {datasPin?.pins
+                ? datasPin.pins.filter((pin) => !pin.used).length
+                : 0}
             </h1>
-
             <h1 className="text-sm mt-1">PIN Tersedia</h1>
+
+   
           </div>
         </div>
         {/* ini pi div aktivasi */}
@@ -56,14 +62,14 @@ export default function StockPin() {
           </div>
           <div className="bg-white text-gray-800 p-4">
             <h1 className="text-3xl font-bold">
-              <p>{datasPin?.pinsRO.filter((pin) => !pin.used).length}</p>
+              {datasPin?.pinsRO
+                ? datasPin.pinsRO.filter((pin) => !pin.used).length
+                : 0}
             </h1>
             <h1 className="text-sm mt-1">PIN Tersedia</h1>
           </div>
         </div>
       </div>
-
-    
     </div>
   );
 }

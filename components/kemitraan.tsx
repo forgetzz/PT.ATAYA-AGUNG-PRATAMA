@@ -18,39 +18,12 @@ const sokidPackages = [
     ],
     badge: "EKSCLUSIF",
     onJoin: () => alert("Gabung sebagai SOKID STOKIS"),
-  },
-  {
-    title: "Mitra Reseller",
-    price: "Rp 180.000",
-    description:
-      "Mulai bisnis Anda sendiri dengan menjadi reseller resmi produk ASB..",
-    benefits: [
-      "Harga khusus reseller",
-      "Materi promosi lengkap",
-      "Grup bimbingan eksklusif",
-      "Potensi penghasilan tak terbatas",
-    ],
-    badge: "REKOMENDASI",
-    onJoin: () => alert("Gabung sebagai SOKID AGEN"),
-  },
-  {
-    title: "Konsumen",
-    price: "Rp 100.000",
-    description:
-      "Dapatkan produk berkualitas untuk konsumsi pribadi dengan harga terjangkau.",
-    benefits: [
-      "Akses ke produk herbal premium",
-      "Informasi kesehatan eksklusif",
-      "Dukungan pelanggan prioritas",
-    ],
-    badge: "",
-    onJoin: () => alert("Gabung sebagai SOKID MEMBER"),
-  },
+  }
 ];
 
 export function SokidList() {
   return (
-    <div className="  gap-8 md:grid-cols-3 py-10">
+    <div id="kemitraan" className="  gap-8 md:grid-cols-3 py-10">
       <div>
         <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-800 mb-6 text-center leading-tight">
           Pilihan Paket <span className="text-red-600">Kemitraan</span> Kami

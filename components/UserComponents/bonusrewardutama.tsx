@@ -46,22 +46,32 @@ export default function BonusRewardUtama() {
     return () => unsub();
   }, []);
 
-  const handleClaim = async (reward: Reward) => {
-    const auth = getAuth();
-    const user = auth.currentUser;
-    if (!user) return;
+const handleClaim = async (reward: Reward) => {
+  const auth = getAuth();
+  const user = auth.currentUser;
+  if (!user) return;
 
-    const userRef = doc(db, "users", user.uid);
+  const userRef = doc(db, "users", user.uid);
+  const useSnap = await getDoc(userRef);
+  if (!useSnap.exists()) return;
 
-    await updateDoc(userRef, {
-      rewardUtama: {
-        title: reward.title,
-        amount: reward.amount,
-      },
-    });
+  const userData = useSnap.data() as { poin: number };
 
-    setClaimedReward(reward.title);
-  };
+  // Hitung sisa poin
+  const sisaPoin = Math.max(userData.poin - reward.points, 0);
+
+  await updateDoc(userRef, {
+    rewardUtama: {
+      title: reward.title,
+      amount: reward.amount,
+    },
+    poin: sisaPoin,
+  });
+
+  setPoin(sisaPoin);
+  setClaimedReward(reward.title);
+};
+
 
   // Cari reward tertinggi yang bisa di-claim
   const maxClaimableIndex = rewards

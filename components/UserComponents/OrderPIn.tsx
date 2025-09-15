@@ -65,13 +65,16 @@ export default function OrderPIN() {
 
       const firebaseToken = await user.getIdToken();
       const userDoc = await getDoc(doc(db, "users", user.uid));
+  
       if (!userDoc.exists()) {
         alert("Data user tidak ditemukan.");
         return;
-      }
+      }    const email2 = user.email
+    console.log(email2)
 
       const { name = "Tanpa Nama", username = "Tanpa Username", email = "tanpa email" } =
         userDoc.data();
+        console.log(name, username, email)
 
       const saveRes = await fetch(
         "https://backend-asb-production.up.railway.app/Transfer",
@@ -82,7 +85,7 @@ export default function OrderPIN() {
             Authorization: `Bearer ${firebaseToken}`,
           },
           body: JSON.stringify({
-            name,
+            name ,
             email,
             username,
             jenis: selectedType,

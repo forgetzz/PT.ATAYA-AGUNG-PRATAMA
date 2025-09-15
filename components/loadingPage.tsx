@@ -20,16 +20,16 @@ export default function GlobalLoading() {
   if (!loading) return null;
 
   return (
-    <div className="fixed inset-0 bg-red-950/80 z-[9999] flex flex-col-reverse items-center justify-center">
-     <div className="w-[120px] h-[120px] animate-spin-slow">
+    <div className="fixed inset-0 bg-black z-[9999] flex flex-col-reverse items-center justify-center">
+     <div className="w-[200px] h-[200px] ">
 
         <Image
          priority
-          src="/images/loading.jpeg" // Ganti ini dengan gambar kamu
+          src="/images/logo.png" // Ganti ini dengan gambar kamu
           alt="Loading"
-          width={120}
-          height={120}
-          className="rounded-full object-cover"
+          width={500}
+          height={500}
+          className=" p-10 rounded-lg object-cover bg-white "
         />
         
       </div>

@@ -4,9 +4,16 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
-import { Menu, ArrowRight } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
+import { Menu } from "lucide-react";
 import clsx from "clsx";
+import { FaWhatsapp, FaFacebook, FaInstagram, FaTiktok, FaYoutube, FaVoicemail, FaEnvelope } from "react-icons/fa";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -17,19 +24,20 @@ export default function Navbar() {
   }, [pathname]);
 
   const menuLinks = [
-    { label: "Beranda", href: "#features" },
-    { label: "Tentang Kami", href: "#features" },
-    { label: "Produk", href: "#produk" },
-    { label: "Kemitraan", href: "#halo" },
-    { label: "Kontak", href: "#contact" },
+    { label: "Beranda", href: "/" },
+    { label: "Tentang Kami", href: "#tentangKami" },
+    { label: "PriceList", href: "#produk" },
+    { label: "Kemitraan", href: "#kemitraan" },
+    { label: "Galery", href: "/galery" },
+    { label: "Kontak", href: "#kontak" },
   ];
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm dark:bg-black/90 dark:border-red-400">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="text-xl font-bold text-red-600">
-          ASBFamily
+        <Link href="/" className="text-xl font-bold text-blue-600 p-2">
+          Ataya Agung Pratama
         </Link>
 
         {/* Desktop Menu */}
@@ -39,8 +47,8 @@ export default function Navbar() {
               key={link.label}
               href={link.href}
               className={clsx(
-                "text-gray-700 hover:text-red-600 font-medium transition",
-                pathname === link.href && "text-red-700"
+                "text-gray-700 hover:text-blue-600 font-medium transition",
+                pathname === link.href && "text-blue-700"
               )}
             >
               {link.label}
@@ -50,11 +58,10 @@ export default function Navbar() {
 
         {/* Desktop Buttons */}
         <div className="hidden lg:flex gap-2">
-          {/* <Button asChild variant="outline">
-            <Link href="/login">L</Link>
-          </Button> */}
-          <Button asChild className="bg-red-600 hover:bg-red-700 text-white">
-            <Link href="/login">Login  <ArrowRight className="ml-2 h-5 w-5" /></Link>
+          <Button asChild className="bg-blue-600 hover:bg-red-700 text-white">
+            <Link href="/">
+              Pesan sekarang <FaWhatsapp className="ml-2 h-5 w-5" />
+            </Link>
           </Button>
         </div>
 
@@ -63,15 +70,14 @@ export default function Navbar() {
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
-                <Menu className="w-6 h-6 text-red-600" />
+                <Menu className="w-6 h-6 text-blue-600" />
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[280px] sm:w-[300px]">
-              {/* --- BAGIAN YANG DIPERBAIKI --- */}
-              {/* Tambahkan SheetTitle dan SheetDescription di sini */}
               <SheetTitle className="sr-only">Menu Navigasi</SheetTitle>
-              <SheetDescription className="sr-only">Menu untuk navigasi situs.</SheetDescription>
-              {/* --- AKHIR BAGIAN YANG DIPERBAIKI --- */}
+              <SheetDescription className="sr-only">
+                Menu untuk navigasi situs.
+              </SheetDescription>
 
               <div className="flex flex-col gap-4 mt-6">
                 {menuLinks.map((link) => (
@@ -83,15 +89,31 @@ export default function Navbar() {
                     {link.label}
                   </Link>
                 ))}
-                {/* <Button asChild variant="outline" className="w-full">
-                  <Link href="/login">Login</Link>
-                </Button> */}
+
                 <Button
                   asChild
                   className="bg-red-600 hover:bg-red-700 text-white w-full"
                 >
-                  <Link href="/login">Login Member <ArrowRight className="ml-2 h-5 w-5" /></Link>
+                  <Link href="/login">
+                    Pesan Jasa Service <FaWhatsapp className="ml-2 h-5 w-5" />
+                  </Link>
                 </Button>
+
+                {/* Sosmed Icons */}
+                {/* <div className="flex items-center justify-center gap-4 mt-6 text-gray-600">
+                  <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+                    <FaFacebook className="w-6 h-6 hover:text-blue-600 transition" />
+                  </a>
+                  <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+                    <FaInstagram className="w-6 h-6 hover:text-pink-500 transition" />
+                  </a>
+                  <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer">
+                    <FaTiktok className="w-6 h-6 hover:text-black transition" />
+                  </a>
+                  <a href="mailto:ptatayaagungpratamaesp@gmail.com" target="_blank" rel="noopener noreferrer">
+                    <FaEnvelope className="w-6 h-6 hover:text-red-600 transition" />
+                  </a>
+                </div> */}
               </div>
             </SheetContent>
           </Sheet>
