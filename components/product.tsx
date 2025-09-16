@@ -51,6 +51,7 @@ const greeProducts: Product[] = [
   { kategori: "COMBO SPLIT", jenis: "GWC-0707CSS", harga: "9,119,000" },
 ];
 
+
 const mideaProducts: Product[] = [
   { kategori: "FLIFE STANDART", jenis: "FAC-05FMOO2 - 0,5 PK", harga: "2,769,000" },
   { kategori: "FLIFE STANDART", jenis: "FAC-07FMOO2 - 0,7 PK", harga: "3,179,000" },
@@ -70,6 +71,8 @@ const mideaProducts: Product[] = [
   { kategori: "AIR CURTAIN", jenis: "FM 1.25 12 K - 120cm", harga: "3,329,000" },
 ];
 
+
+
 const CardGrid: React.FC<{ title: string; desc: string; data: Product[] }> = ({
   title,
   desc,
@@ -82,20 +85,39 @@ const CardGrid: React.FC<{ title: string; desc: string; data: Product[] }> = ({
     </div>
 
     <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 p-4 bg-blue-50 rounded-b-xl shadow-md">
-      {data.map((item, idx) => (
-        <div
-          key={idx}
-          className="bg-white rounded-xl border border-blue-200 shadow hover:shadow-lg transition-transform hover:-translate-y-1"
-        >
-          <div className="p-4">
-            <h3 className="font-bold text-blue-700">{item.jenis}</h3>
-            <p className="text-xs text-gray-500">{item.kategori}</p>
-            <p className="mt-3 text-lg font-semibold text-blue-600">
-              Rp {item.harga}
-            </p>
-          </div>
+  {data.map((item, idx) => {
+  const waNumber = "+6281356649191";
+  const message = encodeURIComponent(`Saya ingin pesan ${item.jenis} ${title}`);
+  const waLink = `https://wa.me/${waNumber}?text=${message}`;
+
+  return (
+    <div
+      key={idx}
+      className="bg-white rounded-xl border border-blue-200 shadow hover:shadow-lg transition-transform hover:-translate-y-1"
+    >
+      <div className="p-4 flex flex-col justify-between h-full">
+        <div>
+          <h3 className="font-bold text-blue-700">{item.jenis}</h3>
+          <p className="text-xs text-gray-500">{item.kategori}</p>
+          <p className="mt-3 text-lg font-semibold text-blue-600">
+            Rp {item.harga}
+          </p>
         </div>
-      ))}
+
+        {/* Tombol WhatsApp */}
+        <a
+          href={waLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 inline-block bg-green-500 text-white text-sm px-4 py-2 rounded-lg hover:bg-green-600 transition"
+        >
+          Pesan via WhatsApp
+        </a>
+      </div>
+    </div>
+  );
+})}
+
     </div>
   </div>
 );
