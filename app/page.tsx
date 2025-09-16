@@ -1,6 +1,6 @@
 import Footer from "@/components/footer";
 import HeroSection from "@/components/hero";
-import { SokidList } from "@/components/kemitraan"; // Assuming this is correct
+import { JasaList } from "@/components/Jasalist"; // Assuming this is correct
 import Navbar from "@/components/navbar";
 import Pengguna from "@/components/pengguna";
 import ProductCards from "@/components/produk";
@@ -11,6 +11,7 @@ import { LayananKami } from "@/components/Layanan";
 import PromoCountdown from "@/components/Promo";
 import Price from "@/components/price";
 import ProductList from "@/components/product";
+import Testimonial from "@/components/Testimonial";
 
 export default function Home() {
   return (
@@ -43,19 +44,21 @@ export default function Home() {
         <div>
           {" "}
           <Price/>
-          {/* Adjust this margin as needed */}
-          {/* <PromoCountdown /> */}
+         
         </div>
-        {/* <div className="mt-16 px-10">
-          <SokidList />
-        </div> */}
+        <div className="mt-16 px-10">
+          <JasaList />
+        </div>
         <div className="mt-16 px-10">
           {" "}
-          {/* Adjust this margin as needed */}
           <PengalamanPerusahaan />
         </div>
+        <div className="mt-16 px-10">
+          {" "}
+          <Testimonial/>
+        </div>
       </main>
-      <Footer /> {/* Footer also typically has its own styling */}
+      <Footer /> 
     </div>
   );
 }

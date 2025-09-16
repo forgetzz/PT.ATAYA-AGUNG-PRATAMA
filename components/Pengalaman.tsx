@@ -11,6 +11,7 @@ export function PengalamanPerusahaan() {
     "/images/satwa.jpg",
     "/images/APL.jpg",
     "/images/ICONNET.png",
+    "/images/ALMAZ.png",
   ];
 
   return (

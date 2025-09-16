@@ -21,7 +21,7 @@ export default function SejarahKami() {
         {/* Gambar */}
         <div className="relative w-full md:w-1/3 h-72 rounded-xl overflow-hidden shadow-md">
           <Image
-            src="/images/asd.png"
+            src="/images/pic1.jpeg"
             alt="Logo ATT"
             fill
             className="object-cover"
@@ -30,8 +30,8 @@ export default function SejarahKami() {
         </div>
 
         {/* Teks */}
-        <div className="w-full md:w-2/3 text-gray-700">
-          <p className="text-justify text-lg leading-relaxed">
+        <div className="w-full text-gray-700">
+          <p className=" text-lg ">
             Kami adalah perusahaan yang bergerak dalam bidang Kontraktor,
             Distributor, Service, dan Maintenance Air Conditioner dengan
             pengalaman lebih dari puluhan tahun. Dengan komitmen tinggi pada

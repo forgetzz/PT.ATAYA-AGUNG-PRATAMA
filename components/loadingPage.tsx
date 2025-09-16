@@ -27,8 +27,8 @@ export default function GlobalLoading() {
          priority
           src="/images/ATAYA.png" // Ganti ini dengan gambar kamu
           alt="Loading"
-          width={500}
-          height={500}
+          width={800}
+          height={800}
           className=" p-10 rounded-lg object-cover bg-white "
         />
         

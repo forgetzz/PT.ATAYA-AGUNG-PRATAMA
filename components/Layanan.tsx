@@ -64,7 +64,9 @@ export function LayananKami() {
         <p className="text-lg sm:text-xl text-gray-600 mt-4">
           Berbagai layanan kami tawarkan mulai dari Distributor, penjualan B2B
           dan B2C, service dan maintenance berbagai Merk Air Conditioner.
+              <span className="font-bold">Klik Dan Dapatkan Promonya</span> <span className="text-blue-600 font-bold">Sekarang</span>
         </p>
+      
       </div>
       {open && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
