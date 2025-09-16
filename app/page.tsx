@@ -10,6 +10,7 @@ import { GalleryPerusahaan } from "@/components/Documnet";
 import { LayananKami } from "@/components/Layanan";
 import PromoCountdown from "@/components/Promo";
 import Price from "@/components/price";
+import ProductList from "@/components/product";
 
 export default function Home() {
   return (
@@ -37,6 +38,7 @@ export default function Home() {
           {" "}
           {/* Adjust this margin as needed */}
           {/* <ProductCards /> */}
+          <ProductList/>
         </div>
         <div>
           {" "}
