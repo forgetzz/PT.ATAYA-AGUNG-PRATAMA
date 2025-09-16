@@ -17,7 +17,7 @@ export default function PromoPopup3({ onClose }: { onClose: () => void }) {
     () => new Date().getTime() + 15 * 24 * 60 * 60 * 1000
   );
 
-  const images = ["/images/price2.jpeg"];
+  const images = ["/images/price2.jpg"];
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const nextSlide = () => setCurrentIndex((prev) => (prev + 1) % images.length);
@@ -99,7 +99,7 @@ export default function PromoPopup3({ onClose }: { onClose: () => void }) {
 
   {/* Harga */}
   <div className="mb-4">
-    <p className="text-gray-400 line-through text-lg">Rp300.000</p>
+    <p className="text-gray-400  text-lg">Mulai dari</p>
     <p className="text-2xl font-bold text-green-600">Rp250.000</p>
   </div>
 

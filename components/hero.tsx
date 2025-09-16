@@ -35,7 +35,7 @@ const HeroSection: React.FC = () => {
           Kami hadir untuk menjadikan udara rumah dan kantor Anda lebih sejuk dan sehat.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link href="https://wa.me/+6285930900693">
+          <Link href="https://wa.me/+6281356649191">
             <Button
               size="lg"
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl shadow-lg"

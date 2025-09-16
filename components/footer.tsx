@@ -41,23 +41,14 @@ export default function Footer() {
             <li className="flex items-center gap-2">
               <FaPhone className="text-green-400" />
               <a
-                href="https://wa.me/+6285930900692"
+                href="https://wa.me/+6281356649191"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Admin: 0859-3090-0692
+                Admin:0813-5664-9191
               </a>
             </li>
-            <li className="flex items-center gap-2">
-              <FaWhatsapp className="text-green-400" />
-              <a
-                href="https://wa.me/+6285930900693"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Admin: 0859-3090-0693
-              </a>
-            </li>
+           
             <li className="flex items-center gap-2">
               <FaInstagram className="text-green-400" />
               <a
