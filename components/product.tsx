@@ -87,7 +87,7 @@ const CardGrid: React.FC<{ title: string; desc: string; data: Product[] }> = ({
     <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 p-4 bg-blue-50 rounded-b-xl shadow-md">
   {data.map((item, idx) => {
   const waNumber = "+6281356649191";
-  const message = encodeURIComponent(`Saya ingin pesan ${item.jenis} ${title}`);
+  const message = encodeURIComponent(`Saya ingin pesan ${item.jenis} ${title} ${item.harga}`);
   const waLink = `https://wa.me/${waNumber}?text=${message}`;
 
   return (
@@ -125,17 +125,17 @@ const CardGrid: React.FC<{ title: string; desc: string; data: Product[] }> = ({
 export default function PriceList() {
   return (
     <div id="product" className="max-w-6xl mx-auto p-6 space-y-10">
-      <a href="https://wa.me/+6281356649191"><CardGrid
+     <CardGrid
         title="Merek Gree"
         desc="Produk AC Gree: Floor Standing, Cassette, Standart, Deluxe, Inverter Series, Combo Split."
         data={greeProducts}
-      /></a>
-      <a href="https://wa.me/+6281356649191">
+      />
+    
         <CardGrid
         title="Merek Midea"
         desc="Produk AC Midea: Flife Standart, Low Watt, Portable Series, dan Air Curtain."
         data={mideaProducts}
-      /></a>
+      />
     
     </div>
   );

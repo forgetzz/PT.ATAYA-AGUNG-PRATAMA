@@ -47,7 +47,7 @@ export function LayananKami() {
     },
     {
       icon: (
-        <a href="https://wa.me/+6281356649191">
+        <a href="https://wa.link/ytt8my">
           <Truck className="w-8 h-8 text-white" />
         </a>
       ),

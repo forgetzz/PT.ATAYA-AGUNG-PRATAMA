@@ -41,7 +41,7 @@ export default function Footer() {
             <li className="flex items-center gap-2">
               <FaPhone className="text-green-400" />
               <a
-                href="https://wa.me/+6281356649191"
+                href="https://wa.link/ytt8my"
                 target="_blank"
                 rel="noopener noreferrer"
               >
