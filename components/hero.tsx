@@ -35,7 +35,7 @@ const HeroSection: React.FC = () => {
           Kami hadir untuk menjadikan udara rumah dan kantor Anda lebih sejuk dan sehat.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link href="/">
+          <Link href="https://wa.me/+6285930900693">
             <Button
               size="lg"
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl shadow-lg"
@@ -43,8 +43,9 @@ const HeroSection: React.FC = () => {
               Pesan Sekarang <FaWhatsapp className="ml-2 h-5 w-5" />
             </Button>
           </Link>
-          <Link href="#produk">
+          <Link href="#layanan">
             <Button
+            
               variant="outline"
               size="lg"
               className="text-black border-white hover:bg-white hover:text-blue-700 px-6 py-3 rounded-xl"

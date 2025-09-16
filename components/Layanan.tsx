@@ -10,9 +10,14 @@ import {
   X,
 } from "lucide-react";
 import React, { useState } from "react";
+import PromoPopup from "./Promo";
+import PromoPopup2 from "./promo2";
+import PromoPopup3 from "./Promo3";
 
 export function LayananKami() {
   const [open, setOpen] = useState(false);
+  const [open2, setOpen2] = useState(false);
+  const [open3, setOpen3] = useState(false);
 
   const services = [
     {
@@ -26,7 +31,7 @@ export function LayananKami() {
     },
     {
       icon: (
-        <button onClick={() => setOpen(!open)}>
+        <button onClick={() => setOpen2(!open2)}>
           {" "}
           <Wrench className="w-8 h-8 text-white" />
         </button>
@@ -34,7 +39,10 @@ export function LayananKami() {
       title: "INSTALL",
     },
     {
-      icon: <Settings className="w-8 h-8 text-white" />,
+      icon:   <button onClick={() => setOpen3(!open3)}>
+          {" "}
+         <Settings className="w-8 h-8 text-white" />
+        </button>,
       title: "MAINTENANCE & SERVICE",
     },
     {
@@ -43,19 +51,7 @@ export function LayananKami() {
           <Truck className="w-8 h-8 text-white" />
         </a>
       ),
-      title: "PENGADAAN",
-    },
-    {
-      icon: (
-        <a href="https://wa.me/+6281356649191">
-          <ShoppingCart className="w-8 h-8 text-white" />
-        </a>
-      ),
-      title: "SALES",
-    },
-    {
-      icon: <Building2 className="w-8 h-8 text-white" />,
-      title: "AIR CONDITIONER CONTRACTOR",
+      title: "SALES & PENGADAAN",
     },
   ];
 
@@ -71,25 +67,18 @@ export function LayananKami() {
         </p>
       </div>
       {open && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-10">
-          <div className="bg-white p-4 rounded-lg shadow-lg relative">
-            {/* Tombol close pojok kanan atas */}
-            <button
-              onClick={() => setOpen(false)}
-              className="absolute top-2 right-2 text-blue-500"
-            >
-              <X />
-            </button>
-
-            {/* Gambar di tengah */}
-            <div>
-              <img
-                src="/images/price3.jpeg"
-                alt="logo"
-                className="w-[70%] max-h-[80vh] mx-auto"
-              />
-            </div>
-          </div>
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+          <PromoPopup onClose={() => setOpen(false)} />
+        </div>
+      )}
+      {open2 && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+          <PromoPopup2 onClose={() => setOpen2(false)} />
+        </div>
+      )}
+      {open3 && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+          <PromoPopup3 onClose={() => setOpen3(false)} />
         </div>
       )}
 

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
-export default function PromoPopup({ onClose }: { onClose: () => void }) {
+export default function PromoPopup2({ onClose }: { onClose: () => void }) {
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -17,7 +17,7 @@ export default function PromoPopup({ onClose }: { onClose: () => void }) {
     () => new Date().getTime() + 15 * 24 * 60 * 60 * 1000
   );
 
-  const images = ["/images/price3.jpeg", "/images/price4.jpeg"];
+  const images = ["/images/promo.png"];
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const nextSlide = () => setCurrentIndex((prev) => (prev + 1) % images.length);
@@ -89,48 +89,44 @@ export default function PromoPopup({ onClose }: { onClose: () => void }) {
         </button>
 
         {/* Konten */}
-      {/* Konten */}
-<div className="p-4 sm:p-6 text-center">
-  <h2 className="text-xl sm:text-2xl font-bold text-red-600 mb-2">
-    🎉 Promo Spesial 🎉
-  </h2>
-  <p className="text-gray-600 mb-4">
-    Nikmati diskon besar sebelum waktunya habis!
-  </p>
+        <div className="p-4 sm:p-6 text-center">
+          <h2 className="text-xl sm:text-2xl font-bold text-red-600 mb-2">
+            🎉 Promo Spesial 🎉
+          </h2>
+          <p className="text-gray-600 mb-4">
+            Nikmati diskon besar sebelum waktunya habis!
+          </p>
 
-  {/* Harga */}
-  <div className="mb-4">
-    <p className="text-gray-400 line-through text-lg">Rp100.000</p>
-    <p className="text-2xl font-bold text-green-600">Rp90.000</p>
-    <p className="text-gray-400 line-through text-lg">Rp200.000</p>
-    <p className="text-2xl font-bold text-green-600">Rp150.000</p>
-  </div>
+          {/* Harga */}
+          <div className="mb-4">
+            <p className="text-gray-400 line-through text-lg">Rp400.000</p>
+            <p className="text-2xl font-bold text-green-600">Rp350.000</p>
+          </div>
 
-  {timeLeft.expired ? (
-    <p className="text-lg font-semibold text-gray-500">
-      ⏰ Promo Telah Berakhir
-    </p>
-  ) : (
-    <div className="flex justify-center gap-2 sm:gap-3 mb-4">
-      <TimeBox label="Hari" value={timeLeft.days} />
-      <TimeBox label="Jam" value={timeLeft.hours} />
-      <TimeBox label="Menit" value={timeLeft.minutes} />
-      <TimeBox label="Detik" value={timeLeft.seconds} />
-    </div>
-  )}
+          {timeLeft.expired ? (
+            <p className="text-lg font-semibold text-gray-500">
+              ⏰ Promo Telah Berakhir
+            </p>
+          ) : (
+            <div className="flex justify-center gap-2 sm:gap-3 mb-4">
+              <TimeBox label="Hari" value={timeLeft.days} />
+              <TimeBox label="Jam" value={timeLeft.hours} />
+              <TimeBox label="Menit" value={timeLeft.minutes} />
+              <TimeBox label="Detik" value={timeLeft.seconds} />
+            </div>
+          )}
 
-  {!timeLeft.expired && (
-    <a
-      href="https://wa.me/+6285930900693"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-block bg-red-600 text-white font-bold px-4 py-2 sm:px-5 sm:py-3 rounded-lg shadow hover:bg-red-700 transition"
-    >
-      Pesan Sekarang
-    </a>
-  )}
-</div>
-
+          {!timeLeft.expired && (
+            <a
+              href="https://wa.me/+6285930900693"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block bg-red-600 text-white font-bold px-4 py-2 sm:px-5 sm:py-3 rounded-lg shadow hover:bg-red-700 transition"
+            >
+              Pesan Sekarang
+            </a>
+          )}
+        </div>
       </div>
     </div>
   );

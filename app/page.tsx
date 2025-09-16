@@ -9,6 +9,7 @@ import { PengalamanPerusahaan } from "@/components/Pengalaman";
 import { GalleryPerusahaan } from "@/components/Documnet";
 import { LayananKami } from "@/components/Layanan";
 import PromoCountdown from "@/components/Promo";
+import Price from "@/components/price";
 
 export default function Home() {
   return (
@@ -35,12 +36,13 @@ export default function Home() {
         <div className="mt-16 px-5 border-red-400">
           {" "}
           {/* Adjust this margin as needed */}
-          <ProductCards />
+          {/* <ProductCards /> */}
         </div>
         <div>
           {" "}
+          <Price/>
           {/* Adjust this margin as needed */}
-          <PromoCountdown />
+          {/* <PromoCountdown /> */}
         </div>
         {/* <div className="mt-16 px-10">
           <SokidList />

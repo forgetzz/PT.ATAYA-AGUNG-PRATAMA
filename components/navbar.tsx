@@ -26,7 +26,7 @@ export default function Navbar() {
   const menuLinks = [
     { label: "Beranda", href: "/" },
     { label: "Tentang Kami", href: "#tentangKami" },
-    { label: "PriceList", href: "#produk" },
+    { label: "PriceList", href: "#price" },
     { label: "Kemitraan", href: "#kemitraan" },
     { label: "Galery", href: "/galery" },
     { label: "Kontak", href: "#kontak" },
@@ -59,7 +59,7 @@ export default function Navbar() {
         {/* Desktop Buttons */}
         <div className="hidden lg:flex gap-2">
           <Button asChild className="bg-blue-600 hover:bg-red-700 text-white">
-            <Link href="/">
+            <Link href="https://wa.me/+6285930900693">
               Pesan sekarang <FaWhatsapp className="ml-2 h-5 w-5" />
             </Link>
           </Button>

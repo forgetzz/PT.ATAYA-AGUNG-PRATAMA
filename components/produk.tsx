@@ -12,7 +12,7 @@ export default function ProductCarousel() {
     { image: "/images/price1.jpeg" },
     { image: "/images/price2.jpeg" },
     { image: "/images/price3.jpeg" },
-    { image: "/images/promo.jpeg" },
+    { image: "/images/Promo.png" },
   ];
 
   const scroll = (direction: "left" | "right") => {

@@ -9,7 +9,6 @@ export function Gallery() {
     "/images/asas.png",
     "/images/pic2.png",
     "/images/pic3.png",
-    "/images/pic1.png",
 
   ];
 

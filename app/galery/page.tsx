@@ -1,3 +1,4 @@
+"use client"
 import { GalleryPerusahaan } from "@/components/Documnet";
 import { Gallery } from "@/components/Galery";
 import Navbar from "@/components/navbar";

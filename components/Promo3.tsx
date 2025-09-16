@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
-export default function PromoPopup({ onClose }: { onClose: () => void }) {
+export default function PromoPopup3({ onClose }: { onClose: () => void }) {
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -17,7 +17,7 @@ export default function PromoPopup({ onClose }: { onClose: () => void }) {
     () => new Date().getTime() + 15 * 24 * 60 * 60 * 1000
   );
 
-  const images = ["/images/price3.jpeg", "/images/price4.jpeg"];
+  const images = ["/images/price2.jpeg"];
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const nextSlide = () => setCurrentIndex((prev) => (prev + 1) % images.length);
@@ -89,8 +89,7 @@ export default function PromoPopup({ onClose }: { onClose: () => void }) {
         </button>
 
         {/* Konten */}
-      {/* Konten */}
-<div className="p-4 sm:p-6 text-center">
+     <div className="p-4 sm:p-6 text-center">
   <h2 className="text-xl sm:text-2xl font-bold text-red-600 mb-2">
     🎉 Promo Spesial 🎉
   </h2>
@@ -100,10 +99,8 @@ export default function PromoPopup({ onClose }: { onClose: () => void }) {
 
   {/* Harga */}
   <div className="mb-4">
-    <p className="text-gray-400 line-through text-lg">Rp100.000</p>
-    <p className="text-2xl font-bold text-green-600">Rp90.000</p>
-    <p className="text-gray-400 line-through text-lg">Rp200.000</p>
-    <p className="text-2xl font-bold text-green-600">Rp150.000</p>
+    <p className="text-gray-400 line-through text-lg">Rp300.000</p>
+    <p className="text-2xl font-bold text-green-600">Rp250.000</p>
   </div>
 
   {timeLeft.expired ? (
@@ -130,7 +127,6 @@ export default function PromoPopup({ onClose }: { onClose: () => void }) {
     </a>
   )}
 </div>
-
       </div>
     </div>
   );
