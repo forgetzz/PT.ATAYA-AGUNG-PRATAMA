@@ -12,7 +12,6 @@ export function GalleryPerusahaan() {
     "/images/NIB.jpg",
     "/images/SPKP.jpg",
     "/images/lampiran.jpg",
-    "/images/lampiranNIB2.jpg",
   ];
 
   const [selected, setSelected] = useState<string | null>(null);

@@ -27,7 +27,6 @@ export default function Navbar() {
     { label: "Beranda", href: "/" },
     { label: "Tentang Kami", href: "#tentangKami" },
     { label: "PriceList", href: "#price" },
-    { label: "Kemitraan", href: "#kemitraan" },
     { label: "Galery", href: "/galery" },
     { label: "Kontak", href: "#kontak" },
   ];

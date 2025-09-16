@@ -17,7 +17,7 @@ export default function PromoPopup2({ onClose }: { onClose: () => void }) {
     () => new Date().getTime() + 15 * 24 * 60 * 60 * 1000
   );
 
-  const images = ["/images/promo.png"];
+  const images = ["/images/price5.png"];
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const nextSlide = () => setCurrentIndex((prev) => (prev + 1) % images.length);

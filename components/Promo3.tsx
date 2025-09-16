@@ -17,7 +17,7 @@ export default function PromoPopup3({ onClose }: { onClose: () => void }) {
     () => new Date().getTime() + 15 * 24 * 60 * 60 * 1000
   );
 
-  const images = ["/images/price2.jpg"];
+  const images = ["/images/price2.jpeg"];
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const nextSlide = () => setCurrentIndex((prev) => (prev + 1) % images.length);
