@@ -9,6 +9,12 @@ export function Gallery() {
     "/images/asas.png",
     "/images/pic2.png",
     "/images/pic3.png",
+    "/images/pic1.jpeg",
+    "/images/pic2.jpeg",
+    "/images/pic3.jpeg",
+    "/images/pic4.jpeg",
+    "/images/pic5.jpeg",
+    "/images/pic6.jpeg",
 
   ];
 
