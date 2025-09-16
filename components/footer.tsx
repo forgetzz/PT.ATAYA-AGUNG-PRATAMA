@@ -17,17 +17,17 @@ export default function Footer() {
     >
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-10">
         {/* Logo & Deskripsi */}
-        <div className="space-y-3">
+        <div className="space-y-3 flex justify-center items-center flex-col">
           <Image
-            src="/images/logo.png"
+            src="/images/ATAYA.png"
             alt="Logo AAP"
             width={200}
             height={200}
-            className="object-contain max-h-60 bg-white rounded-lg pl-4 py-5"
+            className="object-contain max-h-60 bg-white rounded-lg "
             priority
           />
           <p className="text-sm text-gray-100">
-            PT. Auto Sukses Berjamaah. Inovasi Layanan Service AC untuk
+            PT. ATAYA AGUNG PRATAMA. Inovasi Layanan Service AC untuk
             Kenyamanan dan Kepuasan Anda.
           </p>
         </div>
@@ -88,6 +88,20 @@ export default function Footer() {
             Alamat Kami
           </h3>
           <p className="text-sm text-gray-100">
+            Jl. Nico, Blok I No.20, Kelurahan Lariang Bangi, Kota Makassar
+          </p>
+          <div className="rounded-xl overflow-hidden border border-white/30 shadow-md">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3973.7959073388333!2d119.41944207324688!3d-5.136537651952524!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dbefd5694cab3ad%3A0x2adb08314969179d!2sKomplek%20Ruko%2C%20Jl.%20Nico%20No.I%2C%20RW.27%2C%20Lariang%20Bangi%2C%20Kec.%20Makassar%2C%20Kota%20Makassar%2C%20Sulawesi%20Selatan%2090157!5e0!3m2!1sid!2sid!4v1757957568822!5m2!1sid!2sid"
+              width="100%"
+              height="180"
+              style={{ border: 0 }}
+              loading="lazy"
+              allowFullScreen
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
+           <p className="text-sm text-gray-100">
             Jl. Nico, Blok I No.20, Kelurahan Lariang Bangi, Kota Makassar
           </p>
           <div className="rounded-xl overflow-hidden border border-white/30 shadow-md">

@@ -7,17 +7,56 @@ import {
   ShoppingCart,
   Truck,
   Building2,
+  X,
 } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 
 export function LayananKami() {
+  const [open, setOpen] = useState(false);
+
   const services = [
-    { icon: <Sparkles className="w-8 h-8 text-white" />, title: "CLEANING" },
-    { icon: <Wrench className="w-8 h-8 text-white" />, title: "INSTALL" },
-    { icon: <Settings className="w-8 h-8 text-white" />, title: "MAINTENANCE & SERVICE" },
-    { icon: <Truck className="w-8 h-8 text-white" />, title: "PENGADAAN" },
-    { icon: <ShoppingCart className="w-8 h-8 text-white" />, title: "SALES" },
-    { icon: <Building2 className="w-8 h-8 text-white" />, title: "AIR CONDITIONER CONTRACTOR" },
+    {
+      icon: (
+        <button onClick={() => setOpen(!open)}>
+          {" "}
+          <Sparkles className="w-8 h-8 text-white" />
+        </button>
+      ),
+      title: "CLEANING",
+    },
+    {
+      icon: (
+        <button onClick={() => setOpen(!open)}>
+          {" "}
+          <Wrench className="w-8 h-8 text-white" />
+        </button>
+      ),
+      title: "INSTALL",
+    },
+    {
+      icon: <Settings className="w-8 h-8 text-white" />,
+      title: "MAINTENANCE & SERVICE",
+    },
+    {
+      icon: (
+        <a href="https://wa.me/+6281356649191">
+          <Truck className="w-8 h-8 text-white" />
+        </a>
+      ),
+      title: "PENGADAAN",
+    },
+    {
+      icon: (
+        <a href="https://wa.me/+6281356649191">
+          <ShoppingCart className="w-8 h-8 text-white" />
+        </a>
+      ),
+      title: "SALES",
+    },
+    {
+      icon: <Building2 className="w-8 h-8 text-white" />,
+      title: "AIR CONDITIONER CONTRACTOR",
+    },
   ];
 
   return (
@@ -31,6 +70,28 @@ export function LayananKami() {
           dan B2C, service dan maintenance berbagai Merk Air Conditioner.
         </p>
       </div>
+      {open && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-10">
+          <div className="bg-white p-4 rounded-lg shadow-lg relative">
+            {/* Tombol close pojok kanan atas */}
+            <button
+              onClick={() => setOpen(false)}
+              className="absolute top-2 right-2 text-blue-500"
+            >
+              <X />
+            </button>
+
+            {/* Gambar di tengah */}
+            <div>
+              <img
+                src="/images/price3.jpeg"
+                alt="logo"
+                className="w-[70%] max-h-[80vh] mx-auto"
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Grid Layanan */}
       <div className="grid gap-10 grid-cols-2 md:grid-cols-3 max-w-5xl mx-auto">

@@ -36,7 +36,7 @@ export default function ProductCarousel() {
     >
       <div className="text-center mb-12">
         <h1 className="text-4xl sm:text-5xl font-bold text-gray-800">
-          Price <span className="text-blue-500">List</span>
+          Promo <span className="text-blue-500">Akhir Bulan</span>
         </h1>
         <p className="text-gray-500 mt-3 text-lg">
           Temukan pilihan terbaik untuk kebutuhan Anda

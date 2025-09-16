@@ -18,7 +18,8 @@ const sokidPackages = [
     ],
     badge: "EKSCLUSIF",
     onJoin: () => alert("Gabung sebagai SOKID STOKIS"),
-  }
+  },
+
 ];
 
 export function SokidList() {
