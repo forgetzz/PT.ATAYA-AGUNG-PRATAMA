@@ -26,7 +26,7 @@ export default function Navbar() {
   const menuLinks = [
     { label: "Beranda", href: "/" },
     { label: "Tentang Kami", href: "#tentangKami" },
-    { label: "produk", href: "#product" },
+    { label: "Produk", href: "#product" },
     { label: "Price List", href: "#price" },
     { label: "Galery", href: "/galery" },
     { label: "Kontak", href: "#kontak" },
