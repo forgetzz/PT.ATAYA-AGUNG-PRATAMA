@@ -13,7 +13,7 @@ const Customer: Testimonial[] = [
     desc: "Pelayanan cepat dan sangat memuaskan.",
   },
   {
-    logo: "/images/BPJS.png",
+    logo: "/images/bpjs.png",
     name: "Bpjs Kesehatan",
     desc: "Harga terjangkau dengan kualitas terbaik.",
   },
