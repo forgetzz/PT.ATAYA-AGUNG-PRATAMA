@@ -59,7 +59,7 @@ export default function Navbar() {
         {/* Desktop Buttons */}
         <div className="hidden lg:flex gap-2">
           <Button asChild className="bg-blue-600 hover:bg-red-700 text-white">
-            <Link href="https://wa.me/+6281356649191">
+            <Link href="https://wa.link/ytt8my">
               Pesan sekarang <FaWhatsapp className="ml-2 h-5 w-5" />
             </Link>
           </Button>
