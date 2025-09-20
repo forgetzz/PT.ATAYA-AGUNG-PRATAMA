@@ -10,6 +10,20 @@ interface Product {
 const greeProducts: Product[] = [
   { kategori: "FLOOR STANDING", jenis: "GVC-18STS 2PK", harga: "11,080,000" },
   { kategori: "FLOOR STANDING", jenis: "GVC-24STS 3PK", harga: "13,610,000" },
+  {kategori: "FLIFE STANDAR" , jenis : "FAC-05MOO2 - 0,5 PK", harga: "2,769,000"},
+  {kategori: "FLIFE STANDAR" , jenis : "FAC-07MOO2 - 0,7 PK" , harga: "3,170,000"},
+  {kategori: "FLIFE STANDAR" , jenis : "FAC-09MOO2 - 1 PK", harga : "3,279,000"},
+  {kategori: "FLIFE STANDAR" , jenis : "FAC-12MOO2 - 1,5 PK" , harga : "4,309,000"},
+  {kategori: "FLIFE STANDAR", jenis : "FAC-18MOO2 - 2 PK" , harga : "5,739,000" },
+  {kategori: "FLIFE LOW WATT", jenis : "FAC-05FCOO - 0,5 PK" , harga: "2,999,000"},
+  {kategori : "FLIFE LOW WATT" , jenis : "FAC-09FCOO", harga : "3,399,000"},
+  {kategori : "FLIFE LOW WATT" , jenis : "FAC-012FCOO", harga : "4,619,000"},
+  {kategori : "PORTABLE SERIES" , jenis : "GPC-05P2 PORTABLE 0,5 PK ", harga : "3,589,000"},
+  {kategori : "PORTABLE SERIES" , jenis : "GPC-09P1 PORTABLE 1 PK ", harga : "4,479,000"},
+  {kategori : "PORTABLE SERIES" , jenis : "GPC-12P1 PORTABLE 1,5 PK ", harga : "5,639,000"},
+  {kategori : "AIR CURTAIN" , jenis : "FM 1,25 9 K - 90cm ", harga : "2,949,000"},
+  {kategori : "AIR CURTAIN" , jenis : "FM 1.25 12 K - 120cm ", harga : "3,329,000"},
+
   {
     kategori: "FLOOR STANDING",
     jenis: "GVC-48STS (ECO) 5 PK",
@@ -143,7 +157,7 @@ const mideaProducts: Product[] = [
   { kategori: "Split Standart Premium", jenis: "MSAF-18CRN2 - 2 PK", harga: "5,750,000" },
   { kategori: "Split Standart Premium", jenis: "MSAF-24CRN2 - 2,5 PK", harga: "7,420,000" },
 
-  { kategori: "Split Inverter", jenis: "MSIAF-05CRDN2X - 0,5 PK", harga: "3,550,000" },
+  { kategori: "Split Inverter", jenis: "MSIAF-05CRDN2X - 0,5 PK", harga: "3,450,000" },
   { kategori: "Split Inverter", jenis: "MSIAF-09CRDN2X - 1 PK", harga: "3,650,000" },
   { kategori: "Split Inverter", jenis: "MSIAF-12CRDN2X - 1,5 PK", harga: "4,950,000" },
   { kategori: "Split Inverter", jenis: "MSIAF-18CRDN2X - 2 PK", harga: "5,900,000" },
@@ -163,7 +177,7 @@ const mideaProducts: Product[] = [
   { kategori: "AC Cassette", jenis: "MCD-18CRN2 - 2 PK", harga: "9,939,000" },
   { kategori: "AC Cassette", jenis: "MCD-18CRDN2 - 2 PK", harga: "10,435,000" },
   { kategori: "AC Cassette", jenis: "MCD-24CRN2 - 2,5 PK", harga: "12,903,000" },
-  { kategori: "AC Cassette", jenis: "MCD-24CRDN2 - 2,5 PK", harga: "13,599,000" },
+  { kategori: "AC Cassette", jenis: "MCD-24CRDN2 - 2,5 PK", harga: "13,549,000" },
   { kategori: "AC Cassette", jenis: "MCD-36CRN2 - 4 PK", harga: "17,937,000" },
   { kategori: "AC Cassette", jenis: "MCD-36CRDN2 - 4 PK", harga: "18,833,000" },
   { kategori: "AC Cassette", jenis: "MCD-48CRN2 - 5 PK", harga: "22,958,500" },
