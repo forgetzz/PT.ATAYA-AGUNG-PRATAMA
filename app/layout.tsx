@@ -15,12 +15,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Ataya Agung Pratama",
-  description: "Service ac terbaik di indonesia",
+  title: "Service AC Makassar | Ataya Agung Pratama",
+  description:
+    "Jasa service AC profesional di Makassar dan sekitarnya. Perbaikan, cuci, dan perawatan AC dengan teknisi berpengalaman, harga transparan, bergaransi.",
   icons: {
     icon: "/images/aa.png",
   },
 };
+
 
 export default function RootLayout({
   children,
